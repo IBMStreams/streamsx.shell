@@ -1,6 +1,6 @@
 # streamsx.shell
 
-The [shell toolkit for IBM Streams](https://github.com/IBMStreams/streamsx.shell) allows applications to execute Linux shell commands and pipelines as Streams operators:
+The [Shell toolkit for IBM Streams](https://github.com/IBMStreams/streamsx.shell) allows applications to execute Linux shell commands and pipelines as Streams operators:
 
 * lines of text consumed from an operator's input tuples are written to a command's STDIN input
 
