@@ -1,0 +1,48 @@
+// Copyright (C) 2016  International Business Machines Corporation
+// All Rights Reserved
+
+
+namespace sample;
+
+use com.ibm.streamsx.shell::*;
+
+composite TestShellPipeInputTuples {
+
+    type LineType =
+        float64 lineTimestamp,
+        int32 lineNumber,
+        rstring line;
+
+    graph
+
+
+    // create a stream of tuples containing text lines for the ShellPipe operators below to consume
+    stream<LineType> LineStream as Out = FileSource() {
+    logic state: { mutable int32 counter = 0; }
+    param
+        file: dataDirectory() + "/ozymandias.txt";
+        format: line;
+   output Out:
+        lineTimestamp = getTimestampInSecs(),
+        lineNumber = counter++; }
+    () as DebugLineStream = FileSink(LineStream) { param file: "debug.TestShellPipeInputTuples.LineStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // execute an inline Bash script that consumes STDIN, copies lines, and produces STDOUT and STDERR
+    ( stream<float64 lineTimestamp, int32 lineNumber, rstring stdoutLine> A_STDOUTStream ;
+      stream<float64 lineTimestamp, int32 lineNumber, rstring stderrLine> A_STDERRStream ) = ShellPipe(LineStream) {
+    param
+        command: "bash -c \"while read line ; do echo \\$line >&1 ; echo \\$line >&2 ; done\""; }
+    () as DebugA_STDOUTStream = FileSink(A_STDOUTStream) { param file: "debug.TestShellPipeInputTuples.A_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    () as DebugA_STDERRStream = FileSink(A_STDERRStream) { param file: "debug.TestShellPipeInputTuples.A_STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // execute an inline Perl script that consumes STDIN, copies lines, and produces STDOUT and STDERR
+    ( stream<float64 lineTimestamp, int32 lineNumber, rstring stdoutLine> B_STDOUTStream as Out1 ;
+      stream<float64 lineTimestamp, int32 lineNumber, rstring stderrLine> B_STDERRStream as Out2 ) = ShellPipe(LineStream) {
+    param
+        command: "perl -n -e \"print STDOUT \\$_; print STDERR \\$_\"; "; }
+    () as DebugB_STDOUTStream = FileSink(B_STDOUTStream) { param file: "debug.TestShellPipeInputTuples.B_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    () as DebugB_STDERRStream = FileSink(B_STDERRStream) { param file: "debug.TestShellPipeInputTuples.B_STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+}

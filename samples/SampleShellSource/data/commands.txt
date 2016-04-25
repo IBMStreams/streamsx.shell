@@ -1,0 +1,7 @@
+hostname
+whoami
+date
+streamtool version
+no-such-command
+ls -1
+ls no-such-file

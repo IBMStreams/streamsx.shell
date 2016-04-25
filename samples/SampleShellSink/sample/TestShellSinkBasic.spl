@@ -1,0 +1,55 @@
+// Copyright (C) 2016  International Business Machines Corporation
+// All Rights Reserved
+
+
+namespace sample;
+
+use com.ibm.streamsx.shell::*;
+
+composite TestShellSinkBasic {
+
+    graph
+
+
+    // create a stream of text lines for the ShellSink operators below to consume
+    stream<rstring textLine> TextStream = FileSource() {
+    param
+        file: dataDirectory() + "/ozymandias.txt";
+        format: line; }
+    () as DebugTextStream = FileSink(TextStream) { param file: "debug.TestShellSinkBasic.TextStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // execute a Bash script from a file that consumes STDIN and appends lines to another file
+    () as A_STDOUTSink = ShellSink(TextStream) {
+    param
+        command: dataDirectory() + "/savelines.sh " + dataDirectory() + "/debug.TestShellSinkBasic.A_STDOUTStream.out"; }
+
+
+    // execute a Bash script from a file that consumes STDIN and appends lines to another file
+    () as B_STDOUTSink = ShellSink(TextStream) {
+    param
+        stdinAttribute: textLine;
+        command: dataDirectory() + "/savelines.sh " + dataDirectory() + "/debug.TestShellSinkBasic.B_STDOUTStream.out"; }
+
+
+    // execute a Perl script from a file that consumes STDIN and appends lines to another file
+    () as C_STDOUTSink = ShellSink(TextStream) {
+    param
+        stdinAttribute: textLine;
+        command: dataDirectory() + "/savelines.pl " + dataDirectory() + "/debug.TestShellSinkBasic.C_STDOUTStream.out"; }
+
+
+    // execute an inline Bash script that consumes STDIN and appends lines to a file
+    () as D_STDOUTSink = ShellSink(TextStream) {
+    param
+        stdinAttribute: textLine;
+        command: "bash -c \"count=0; while read line ; do echo \\$count \\${#line} \\$line >>" + dataDirectory() + "/debug.TestShellSinkBasic.D_STDOUTStream.out" + "; (( count += 1 )) ; done\""; }
+
+
+    // execute an inline Perl script that consumes STDIN and appends lines to a file
+    () as E_STDOUTSink = ShellSink(TextStream) {
+    param
+        stdinAttribute: textLine;
+        command: "perl -n -e \"BEGIN { open FILE, '>>', \\\"" + dataDirectory() + "/debug.TestShellSinkBasic.E_STDOUTStream.out\\\"; } print FILE \\$count++ . ' ' . length . ' ' . \\$_\""; }
+
+}

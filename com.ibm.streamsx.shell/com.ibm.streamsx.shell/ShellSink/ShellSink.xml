@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<operatorModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.ibm.com/xmlns/prod/streams/spl/operator" xmlns:cmn="http://www.ibm.com/xmlns/prod/streams/spl/common" xsi:schemaLocation="http://www.ibm.com/xmlns/prod/streams/spl/operator operatorModel.xsd">
+  <cppOperatorModel>
+    <context>
+      <description>
+
+ShellSink is an operator for the IBM Streams product that executes
+a Linux command or command pipeline in a shell. Lines of text received
+as input tuples from the operator's required input port are written to the command's STDIN input.
+The command's STDOUT and STDERR output are discarded.
+
+The command or pipeline is specified as an operator parameter.
+Command pipelines can be specified with the usual shell pipe character "|".
+
+The command is executed in separate Linux shell, as specified by
+the `/bin/sh` program, which is the Bash shell on most Linux systems.
+
+The ShellSink operator is part of the 'com.ibm.streamsx.shell' toolkit.
+
+# Processes and Threads
+
+The ShellSink operator creates a separate process to execute the shell command or pipeline,
+and creates a separate thread within the operator's process to receive output from the command.
+
+# Exceptions
+
+The ShellSink operator throws an exception if it is unable to execute the 
+`/bin/sh` program, which is the Bash shell on most Linux systems.
+
+# Sample Applications
+
+The network toolkit includes several
+[./tk$SampleShellSink/tk$SampleShellSink.html|sample applications]
+that illustrate how to use this operator.
+
+      </description>
+      <libraryDependencies>
+        <library>
+          <cmn:description></cmn:description>
+          <cmn:managedLibrary>
+            <cmn:includePath>../../impl/include</cmn:includePath>
+          </cmn:managedLibrary>
+        </library>
+      </libraryDependencies>
+      <providesSingleThreadedContext>Never</providesSingleThreadedContext>
+      <allowCustomLogic>true</allowCustomLogic>
+    </context>
+    <parameters>
+      <description>
+      </description>
+      <allowAny>false</allowAny>
+      <parameter>
+        <name>command</name>
+        <description>
+
+This required parameter takes an expression of type `rstring` that specifies the shell command 
+or pipeline to be executed by the operator. 
+
+        </description>
+        <optional>false</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>AttributeFree</expressionMode>
+        <type>rstring</type>
+        <cardinality>1</cardinality>
+      </parameter>
+      <parameter>
+        <name>stdinAttribute</name>
+        <description>
+
+This optional parameter specifies an input attribute of type `rstring` that contains lines of 
+text to be written to the shell command's STDIN input.
+
+If this parameter is not specified, 
+STDIN input lines are taken from the first input attribute of type `rstring`.
+
+        </description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>Attribute</expressionMode>
+        <type>rstring</type>
+        <cardinality>1</cardinality>
+      </parameter>
+    </parameters>
+    <inputPorts>
+      <inputPortSet>
+        <description>
+
+The ShellSink operator has one required input port.
+
+Lines of text are taken from input tuples and written to the shell command's STDIN input.
+The `stdinAttribute` parameter specifies the input attribute containing input lines,
+or if not specified, the first input attribute of type `rstring` is used.
+
+        </description>
+        <windowingDescription></windowingDescription>
+        <tupleMutationAllowed>false</tupleMutationAllowed>
+        <windowingMode>NonWindowed</windowingMode>
+        <windowPunctuationInputMode>Oblivious</windowPunctuationInputMode>
+        <cardinality>1</cardinality>
+        <optional>false</optional>
+      </inputPortSet>
+    </inputPorts>
+    <outputPorts/>
+  </cppOperatorModel>
+</operatorModel>

@@ -1,0 +1,39 @@
+// Copyright (C) 2016  International Business Machines Corporation
+// All Rights Reserved
+
+namespace sample;
+
+use com.ibm.streamsx.shell::*;
+
+composite TestShellSourceBasic2 {
+
+    graph
+
+
+    // execute a shell pipeline that writes selected text lines to STDOUT and STDIN
+    ( stream<rstring line> A_STDOUTStream ;
+      stream<rstring line> A_STDERRStream ) = ShellSource() {
+    param
+        command: "ifconfig -a | gawk '/flags=/ { interface = $1 } ; /inet/ { print interface, $2 }'"; }
+    () as DebugA_STDOUTStream = FileSink(A_STDOUTStream) { param file: "debug.TestShellSourceBasic2.A_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    () as DebugA_STDERRStream = FileSink(A_STDERRStream) { param file: "debug.TestShellSourceBasic2.A_STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // execute a shell pipeline that writes selected text lines to STDOUT and STDIN
+    ( stream<rstring line> B_STDOUTStream ;
+      stream<rstring line> B_STDERRStream ) = ShellSource() {
+    param
+        command: "find " + dataDirectory() + "/../output -name '*.cpp' -or -name '*.h' | grep -F '/src/operator'"; }
+    () as DebugB_STDOUTStream = FileSink(B_STDOUTStream) { param file: "debug.TestShellSourceBasic2.B_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    () as DebugB_STDERRStream = FileSink(B_STDERRStream) { param file: "debug.TestShellSourceBasic2.B_STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // execute a shell pipeline that writes selected text lines to STDOUT and STDIN
+    ( stream<rstring line> C_STDOUTStream ;
+      stream<rstring line> C_STDERRStream ) = ShellSource() {
+    param
+        command: "cat " + dataDirectory() + "/ozymandias.txt | perl -n -e \"print STDOUT $_; print STDERR join(' ', map { scalar ucfirst reverse lc } m/\\w+/g ) . \\\"\\n\\\"; \""; }
+    () as DebugC_STDOUTStream = FileSink(C_STDOUTStream) { param file: "debug.TestShellSourceBasic2.C_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    () as DebugC_STDERRStream = FileSink(C_STDERRStream) { param file: "debug.TestShellSourceBasic2.C_STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+}

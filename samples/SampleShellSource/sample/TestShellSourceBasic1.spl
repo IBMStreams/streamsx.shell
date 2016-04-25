@@ -1,0 +1,57 @@
+// Copyright (C) 2016  International Business Machines Corporation
+// All Rights Reserved
+
+
+namespace sample;
+
+use com.ibm.streamsx.shell::*;
+
+composite TestShellSourceBasic1 {
+
+    graph
+
+
+    // execute a shell command that writes text lines to STDOUT and produce tuples containing them
+    stream<rstring line> A_STDOUTStream = ShellSource() {
+    param
+        command: "cat " + dataDirectory() + "/ozymandias.txt"; }
+    () as DebugA_STDOUTStream = FileSink(A_STDOUTStream) { param file: "debug.TestShellSourceBasic1.A_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // execute a shell command that writes text lines to STDOUT and produce tuples containing them
+    stream<rstring line> B_STDOUTStream = ShellSource() {
+    param
+        command: "cat " + dataDirectory() + "/ozymandias.txt";
+        stdoutAttribute: "line"; }
+    () as DebugB_STDOUTStream = FileSink(B_STDOUTStream) { param file: "debug.TestShellSourceBasic1.B_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // execute a shell command that writes text lines to STDOUT and produce tuples containing the text plus their line numbers and character counts
+    stream<uint64 lineNumber, int32 lineLength, rstring line> C_STDOUTStream as Out = ShellSource() {
+    param
+        command: "cat " + dataDirectory() + "/ozymandias.txt";
+    output Out:
+        lineNumber = lineCounters()[1],
+        lineLength = length(stdoutLine()),
+        line = stdoutLine(); }
+    () as DebugC_STDOUTStream = FileSink(C_STDOUTStream) { param file: "debug.TestShellSourceBasic1.C_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // after a short delay, execute a shell command that writes text lines to STDOUT and produce tuples containing them
+    stream<rstring line> D_STDOUTStream = ShellSource() {
+    param
+        command: "cat " + dataDirectory() + "/ozymandias.txt";
+        initDelay: 1.5; }
+    () as DebugD_STDOUTStream = FileSink(D_STDOUTStream) { param file: "debug.TestShellSourceBasic1.D_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // repeatedly execute a shell command that writes text lines to STDOUT and produce tuples containing them
+    stream<rstring line> E_STDOUTStream = ShellSource() {
+    param
+        command: "cat " + dataDirectory() + "/ozymandias.txt";
+        iterationCount: 3u;
+        iterationInterval: 3.0; }
+    () as DebugE_STDOUTStream = FileSink(E_STDOUTStream) { param file: "debug.TestShellSourceBasic1.E_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+}

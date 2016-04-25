@@ -1,0 +1,78 @@
+// Copyright (C) 2016  International Business Machines Corporation
+// All Rights Reserved
+
+namespace sample;
+
+use com.ibm.streamsx.shell::*;
+
+composite TestShellSourceInputTuples {
+
+    type
+
+    CommandType =
+        float64 commandTimestamp,
+        int32 commandNumber,
+        rstring command;
+
+    StatusType =
+        CommandType, tuple<
+        int32 exitCode,
+        rstring exitReason,
+        list<uint64> counters >;
+
+    graph
+
+
+    // create a stream of tuples containing shell commands for the ShellSource operators below to consume
+    stream<CommandType> CommandStream as Out = FileSource() {
+    logic state: { mutable int32 counter = 0; }
+    param
+        file: dataDirectory() + "/commands.txt";
+        format: line;
+    output Out:
+        commandTimestamp = getTimestampInSecs(),
+        commandNumber = counter++; }
+    () as DebugCommandStream = FileSink(CommandStream) { param file: "debug.TestShellSourceInputTuples.CommandStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // execute a stream of shell commands and produce tuples from the lines they write to STDOUT
+    stream<rstring stdoutLine> A_STDOUTStream = ShellSource(CommandStream) {
+    param
+        commandAttribute: command;
+        stdoutAttribute: "stdoutLine";
+        }
+    () as DebugA_STDOUTStream = FileSink(A_STDOUTStream) { param file: "debug.TestShellSourceInputTuples.A_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // execute a stream of shell commands and produce tuples from the lines they write to STDOUT and STDERR, plus a status tuple with the commands' exit codes
+    ( stream<int32 commandNumber, rstring line> B_STDOUTStream ;
+      stream<int32 commandNumber, rstring line> B_STDERRStream ;
+      stream<StatusType>  B_StatusStream ) = ShellSource(CommandStream) {
+    output B_StatusStream:
+        command = commandLine(),
+        exitCode = exitCode(),
+        exitReason = exitReason(),
+        counters = lineCounters(); }
+    () as DebugB_STDOUTStream = FileSink(B_STDOUTStream) { param file: "debug.TestShellSourceInputTuples.B_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    () as DebugB_STDERRStream = FileSink(B_STDERRStream) { param file: "debug.TestShellSourceInputTuples.B_STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    () as DebugB_StatusStream = FileSink(B_StatusStream) { param file: "debug.TestShellSourceInputTuples.B_StatusStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // execute a stream of shell commands and produce tuples from the lines they write to STDOUT and STDERR, plus a status tuple with the commands' exit codes
+    ( stream<float64 commandTimestamp, rstring stdoutLine> C_STDOUTStream ;
+      stream<float64 commandTimestamp, rstring stderrLine> C_STDERRStream ;
+      stream<StatusType> C_StatusStream ) = ShellSource(CommandStream) {
+    param
+        commandAttribute: command;
+        stdoutAttribute: "stdoutLine";
+        stderrAttribute: "stderrLine";
+    output C_StatusStream:
+        exitCode = exitCode(),
+        exitReason = exitReason(),
+        counters = lineCounters(); }
+    () as DebugC_STDOUTStream = FileSink(C_STDOUTStream) { param file: "debug.TestShellSourceInputTuples.C_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    () as DebugC_STDERRStream = FileSink(C_STDERRStream) { param file: "debug.TestShellSourceInputTuples.C_STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    () as DebugC_StatusStream = FileSink(C_StatusStream) { param file: "debug.TestShellSourceInputTuples.C_StatusStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+}

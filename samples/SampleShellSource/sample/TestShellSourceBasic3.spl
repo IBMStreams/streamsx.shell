@@ -1,0 +1,34 @@
+// Copyright (C) 2016  International Business Machines Corporation
+// All Rights Reserved
+
+namespace sample;
+
+use com.ibm.streamsx.shell::*;
+
+composite TestShellSourceBasic3 {
+
+	type ShellStatus =
+		rstring command, 
+		int32 exitCode, 
+		rstring exitReason, 
+		list<uint64> counters ;
+
+	graph
+
+
+    // execute a non-existant command and produce a status tuple containing the shell's exit code 
+    ( stream<rstring line> A_STDOUTStream ; 
+      stream<rstring line> A_STDERRStream ;
+      stream<ShellStatus>  A_StatusStream ) = ShellSource() { 
+    param command: "no-such-command"; 
+    output A_StatusStream:
+      	command = commandLine(),
+      	exitCode = exitCode(),
+      	exitReason = exitReason(),
+      	counters = lineCounters(); }
+    () as DebugA_STDOUTStream = FileSink(A_STDOUTStream) { param file: "debug.TestShellSourceBasic3.A_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    () as DebugA_STDERRStream = FileSink(A_STDERRStream) { param file: "debug.TestShellSourceBasic3.A_STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    () as DebugA_StatusStream = FileSink(A_StatusStream) { param file: "debug.TestShellSourceBasic3.A_StatusStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+    
+}
