@@ -2,7 +2,7 @@
 
 The [Shell toolkit for IBM Streams](https://github.com/IBMStreams/streamsx.shell) allows applications to execute Linux shell commands and pipelines as Streams operators:
 
-* lines of text consumed from an operator's input tuples are written to a command's STDIN input
+* lines of text consumed from the operator's input tuples are written to the command's STDIN input
 
 * lines of text read from the command's STDOUT and STDERR output are produced as the operator's output tuples
 
