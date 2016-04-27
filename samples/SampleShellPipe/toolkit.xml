@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<toolkitModel xmlns="http://www.ibm.com/xmlns/prod/streams/spl/toolkit" productVersion="4.1.1.0" xmlns:common="http://www.ibm.com/xmlns/prod/streams/spl/common" xmlns:ti="http://www.ibm.com/xmlns/prod/streams/spl/toolkitInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <toolkit name="SampleShellPipe" requiredProductVersion="4.1.1.0" version="1.0.0">
+    <description/>
+    <uriTable>
+      <uri index="2" value="sample/TestShellPipeInputTuples.spl"/>
+      <uri index="1" value="sample/TestShellPipeBasic1.spl"/>
+      <uri index="3" value="sample/TestShellPipeBasic2.spl"/>
+    </uriTable>
+    <namespace name="sample">
+      <compositeOp column="11" line="9" name="TestShellPipeBasic1" potentialMain="true" uriIndex="1"/>
+      <compositeOp column="11" line="9" name="TestShellPipeInputTuples" potentialMain="true" uriIndex="2">
+        <type column="10" line="11" name="LineType" type="float64 lineTimestamp, int32 lineNumber, rstring line" uriIndex="2"/>
+      </compositeOp>
+      <compositeOp column="11" line="9" name="TestShellPipeBasic2" potentialMain="true" uriIndex="3"/>
+    </namespace>
+    <dependency>
+      <common:name>com.ibm.streamsx.shell</common:name>
+      <common:version>2.0.0</common:version>
+    </dependency>
+    <sabFiles>
+      <ti:include path="toolkit.xml" root="toolkitDir"/>
+      <ti:include path="impl/java/lib/**" root="toolkitDir"/>
+      <ti:include path="impl/java/bin/**" root="toolkitDir"/>
+      <ti:include path="impl/bin/**" root="toolkitDir"/>
+      <ti:include path="impl/lib/**" root="toolkitDir"/>
+      <ti:include path="impl/nl/*.dat" root="toolkitDir"/>
+      <ti:include path="etc/**" root="toolkitDir"/>
+      <ti:include path="lib/**" root="toolkitDir"/>
+      <ti:include path="nl/**" root="toolkitDir"/>
+      <ti:include path="opt/**" root="toolkitDir"/>
+    </sabFiles>
+  </toolkit>
+
+</toolkitModel>
