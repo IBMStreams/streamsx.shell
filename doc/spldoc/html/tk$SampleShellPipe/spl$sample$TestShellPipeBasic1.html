@@ -71,7 +71,7 @@
 </div>
 
 <div class="section splgraph">
-  <embed class="image" src="../../image/tk$SampleShellPipe/op$sample$TestShellPipeBasic1.svg" width="342" height="380"/>
+  <embed class="image" src="../../image/tk$SampleShellPipe/op$sample$TestShellPipeBasic1.svg" width="342" height="382"/>
 </div>
 
 <div class="section"><h2 class="title sectiontitle splhead-2">SPL Source Code</h2>
@@ -98,14 +98,14 @@
      // execute a Bash script from a file that consumes STDIN, counts lines and characters, and produces STDOUT
      stream&lt;rstring stdoutLine&gt; A_STDOUTStream = ShellPipe(TextStream) {
      param
-         command: dataDirectory() + "/countlines1.sh"; }
+         command: "./etc/countlines1.sh"; }
      () as DebugA_STDOUTStream = FileSink(A_STDOUTStream) { param file: "debug.TestShellPipeBasic1.A_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  
  
      // execute a Bash script from a file that consumes STDIN, counts lines and characters, and produces STDOUT
      stream&lt;rstring stdoutLine&gt; B_STDOUTStream = ShellPipe(TextStream) {
      param
-         command: dataDirectory() + "/countlines1.sh";
+         command: "./etc//countlines1.sh";
          stdinAttribute: textLine;
          stdoutAttribute: "stdoutLine"; }
      () as DebugB_STDOUTStream = FileSink(B_STDOUTStream) { param file: "debug.TestShellPipeBasic1.B_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
@@ -114,7 +114,7 @@
      // execute a Perl script from a file that consumes STDIN, counts lines and characters, and produces STDOUT
      stream&lt;rstring stdoutLine&gt; C_STDOUTStream = ShellPipe(TextStream) {
      param
-         command: dataDirectory() + "/countlines1.pl"; }
+         command: "./etc/countlines1.pl"; }
      () as DebugC_STDOUTStream = FileSink(C_STDOUTStream) { param file: "debug.TestShellPipeBasic1.C_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  
  

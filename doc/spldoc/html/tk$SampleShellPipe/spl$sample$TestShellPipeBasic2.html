@@ -99,7 +99,7 @@
      ( stream&lt;rstring stdoutLine&gt; A_STDOUTStream ;
        stream&lt;rstring stderrLine&gt; A_STDERRStream ) = ShellPipe(TextStream) {
      param
-         command: dataDirectory() + "/countlines2.sh"; }
+         command: "./etc/countlines2.sh"; }
      () as DebugA_STDOUTStream = FileSink(A_STDOUTStream) { param file: "debug.TestShellPipeBasic2.A_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
      () as DebugA_STDERRStream = FileSink(A_STDERRStream) { param file: "debug.TestShellPipeBasic2.A_STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  
@@ -108,7 +108,7 @@
      ( stream&lt;rstring stdoutLine&gt; B_STDOUTStream ;
        stream&lt;rstring stderrLine&gt; B_STDERRStream ) = ShellPipe(TextStream) {
      param
-         command: dataDirectory() + "/countlines2.sh";
+         command: "./etc/countlines2.sh";
          stdinAttribute: textLine;
          stdoutAttribute: "stdoutLine";
          stderrAttribute: "stderrLine"; }
@@ -120,7 +120,7 @@
      ( stream&lt;rstring stdoutLine&gt; C_STDOUTStream ;
        stream&lt;rstring stderrLine&gt; C_STDERRStream ) = ShellPipe(TextStream) {
      param
-         command: dataDirectory() + "/countlines2.pl";  }
+         command: "./etc/countlines2.pl";  }
      () as DebugC_STDOUTStream = FileSink(C_STDOUTStream) { param file: "debug.TestShellPipeBasic2.C_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
      () as DebugC_STDERRStream = FileSink(C_STDERRStream) { param file: "debug.TestShellPipeBasic2.C_STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  

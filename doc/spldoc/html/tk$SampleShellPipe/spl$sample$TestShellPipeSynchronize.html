@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="SPL File TestShellPipeSynchronize.spl"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="spldoc_compilationunit"/>
+<link rel="stylesheet" type="text/css" href="../../html/commonltr.css"/>
+<link rel="stylesheet" type="text/css" href="../../html/spldoc.css"/>
+<title>SPL File TestShellPipeSynchronize.spl</title>
+</head>
+<body id="spldoc_compilationunit">
+
+
+<h1 class="title topictitle1">SPL File <tt class="ph tt">TestShellPipeSynchronize.spl</tt></h1>
+
+<div class="body refbody">
+<div class="section">
+<p class="p">
+<a class="xref" href="../toolkits/toolkits.html">Toolkits</a> &gt; <a class="xref" href="tk$SampleShellPipe.html">SampleShellPipe 1.0.0</a> &gt; <a class="xref" href="ns$sample.html">sample</a> &gt; TestShellPipeSynchronize.spl</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Content</h2>
+  
+  <dl class="dl">
+    <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+    
+      <dt class="dt dlterm splhead-2">Operators</dt>
+
+      <dd class="dd">
+<ul class="sl simple">
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$sample$TestShellPipeSynchronize.html#spldoc_compilationunit__composite_operator__TestShellPipeInputSynchronize">TestShellPipeInputSynchronize</a></strong>
+</li>
+
+</ul>
+
+      </dd>
+
+    
+  </dl>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Composites</h2>
+  
+</div>
+
+<div class="section" id="spldoc_compilationunit__composite_operator__TestShellPipeInputSynchronize"><h2 class="title sectiontitle splpart">public composite TestShellPipeInputSynchronize</h2>
+  
+</div>
+
+<div class="section">
+</div>
+
+<div class="section">
+</div>
+
+<div class="section">
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-2">Composite Operator Graph</h2>
+  
+</div>
+
+<div class="section splgraph">
+  <embed class="image" src="../../image/tk$SampleShellPipe/op$sample$TestShellPipeInputSynchronize.svg" width="462" height="247"/>
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-2">SPL Source Code</h2>
+  
+</div>
+
+
+<div class="section">
+   <pre class="pre codeblock">
+
+ composite TestShellPipeInputSynchronize {
+ 
+     type 
+ 
+     InputType =
+         float64 stdinTimestamp,
+         int64 stdinNumber,
+         rstring stdinLine;
+ 
+     OutputType =
+         float64 stdinTimestamp,
+         int64 stdinNumber,
+         rstring stdinLine,
+         rstring stdoutLine;
+ 
+     graph
+ 
+ 
+     // create a stream of tuples containing text lines for the ShellPipe operators below to consume
+     stream&lt;InputType&gt; InputStream as Out = FileSource() {
+     param
+         file: dataDirectory() + "/ozymandias.txt";
+         format: line;
+    output Out:
+         stdinTimestamp = getTimestampInSecs(),
+         stdinNumber = TupleNumber(); }
+     () as DebugInputStream = FileSink(InputStream) { param file: "debug.TestShellPipeInputSynchronize.InputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+ 
+ 
+     // execute an inline Perl script that copies lines from STDIN to STDOUT
+     stream&lt;OutputType&gt; UnsynchronizedOutputStream = ShellPipe(InputStream) {
+     logic state: { mutable int64 counter = 0l; }
+     param
+         command: "perl -n -e \"print STDOUT \\\"unsync'ed line: \\$_\\\";\""; 
+         stdinAttribute: stdinLine;
+         stdoutAttribute: "stdoutLine"; }
+     () as DebugUnsynchronizedOutputStream = FileSink(UnsynchronizedOutputStream) { param file: "debug.TestShellPipeInputSynchronize.UnsynchronizedOutputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+ 
+ 
+     // execute an inline Perl script that copies lines from STDIN to STDOUT
+     stream&lt;rstring stdoutLine&gt; ShellPipeLineOutputStream as Out = ShellPipe(InputStream) {
+     param
+         command: "perl -n -e \"print STDOUT \\\"sync'ed line: \\$_\\\";\""; }
+     () as DebugShellPipeLineOutputStream = FileSink(ShellPipeLineOutputStream) { param file: "debug.TestShellPipeInputSynchronize.ShellPipeLineOutputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+ 
+ 
+     // pair each tuple consumed by the ShellPipe operator with a tuple produced by it
+     stream&lt;OutputType&gt; SynchronizedLineOutputStream = Barrier(InputStream ; ShellPipeLineOutputStream) {}
+     () as DebugSynchronizedLineOutputStream = FileSink(SynchronizedLineOutputStream) { param file: "debug.TestShellPipeInputSynchronize.SynchronizedLineOutputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+ 
+ }
+
+   </pre>
+
+</div>
+
+</div>
+
+
+</body>
+</html>
