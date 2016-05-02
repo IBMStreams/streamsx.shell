@@ -95,48 +95,48 @@
      () as DebugTextStream = FileSink(TextStream) { param file: "debug.TestShellPipeBasic1.TextStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  
  
-     // execute a Bash script from a file that consumes STDIN, counts lines and characters, and produces STDOUT
+     // execute a Bash script from a file that consumes STDIN, counts lines, and produces STDOUT
      stream&lt;rstring stdoutLine&gt; A_STDOUTStream = ShellPipe(TextStream) {
      param
-         command: "./etc/countlines1.sh"; }
+         command: "./etc/lineCounter1.sh"; }
      () as DebugA_STDOUTStream = FileSink(A_STDOUTStream) { param file: "debug.TestShellPipeBasic1.A_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  
  
-     // execute a Bash script from a file that consumes STDIN, counts lines and characters, and produces STDOUT
+     // execute a Bash script from a file that consumes STDIN, counts lines, and produces STDOUT
      stream&lt;rstring stdoutLine&gt; B_STDOUTStream = ShellPipe(TextStream) {
      param
-         command: "./etc//countlines1.sh";
+         command: "./etc/lineCounter1.sh";
          stdinAttribute: textLine;
          stdoutAttribute: "stdoutLine"; }
      () as DebugB_STDOUTStream = FileSink(B_STDOUTStream) { param file: "debug.TestShellPipeBasic1.B_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  
  
-     // execute a Perl script from a file that consumes STDIN, counts lines and characters, and produces STDOUT
+     // execute a Perl script from a file that consumes STDIN, counts lines, and produces STDOUT
      stream&lt;rstring stdoutLine&gt; C_STDOUTStream = ShellPipe(TextStream) {
      param
-         command: "./etc/countlines1.pl"; }
+         command: "./etc/lineCounter1.pl"; }
      () as DebugC_STDOUTStream = FileSink(C_STDOUTStream) { param file: "debug.TestShellPipeBasic1.C_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  
  
-     // execute an inline Bash script that consumes STDIN, counts lines and characters, and produces STDOUT
+     // execute an inline Bash script that consumes STDIN, counts lines, and produces STDOUT
      stream&lt;rstring stdoutLine&gt; D_STDOUTStream = ShellPipe(TextStream) {
      param
-         command: "bash -c \"count=0; while read line ; do echo \\$count \\${#line} \\$line ; (( count += 1 )) ; done\"";
+         command: "bash -c \"count=0; while read line ; do (( count += 1 )) ; echo \\$count \\${#line} \\$line ; done\"";
          stdinAttribute: textLine;
          stdoutAttribute: "stdoutLine"; }
      () as DebugD_STDOUTStream = FileSink(D_STDOUTStream) { param file: "debug.TestShellPipeBasic1.D_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  
  
-     // execute a Perl script from a file that consumes STDIN, counts lines and characters, and produces STDOUT
+     // execute an inline Perl script that consumes STDIN, counts lines, and produces STDOUT
      stream&lt;rstring stdoutLine&gt; E_STDOUTStream = ShellPipe(TextStream) {
      param
-         command: "perl -n -e \"print \\$count++ . ' ' . length . ' ' . \\$_\"";
+         command: "perl -n -e \"print ++\\$count . ' ' . length(\\$_) . ' ' . \\$_\"";
          stdinAttribute: textLine;
          stdoutAttribute: "stdoutLine"; }
      () as DebugE_STDOUTStream = FileSink(E_STDOUTStream) { param file: "debug.TestShellPipeBasic1.E_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  
  
-     // execute a Perl script from a file that consumes STDIN, copies lines, and produces STDOUT
+     // execute an inline Perl script that consumes STDIN, copies lines, and produces STDOUT
      stream&lt;rstring stdoutLine&gt; F_STDOUTStream as Out = ShellPipe(TextStream) {
      param
          command: "perl -n -e \"print \\$_\"";

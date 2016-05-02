@@ -71,7 +71,7 @@
 </div>
 
 <div class="section splgraph">
-  <embed class="image" src="../../image/tk$SampleShellPipe/op$sample$TestShellPipeInputTuples.svg" width="342" height="268"/>
+  <embed class="image" src="../../image/tk$SampleShellPipe/op$sample$TestShellPipeInputTuples.svg" width="342" height="266"/>
 </div>
 
 <div class="section"><h2 class="title sectiontitle splhead-2">SPL Source Code</h2>
@@ -86,26 +86,27 @@
  
      type LineType =
          float64 lineTimestamp,
-         int64 lineNumber,
-         rstring lineText;
+         int32 lineNumber,
+         rstring line;
  
      graph
  
  
      // create a stream of tuples containing text lines for the ShellPipe operators below to consume
      stream&lt;LineType&gt; LineStream as Out = FileSource() {
+     logic state: { mutable int32 counter = 0; }
      param
          file: dataDirectory() + "/ozymandias.txt";
          format: line;
     output Out:
          lineTimestamp = getTimestampInSecs(),
-         lineNumber = TupleNumber(); }
+         lineNumber = counter++; }
      () as DebugLineStream = FileSink(LineStream) { param file: "debug.TestShellPipeInputTuples.LineStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  
  
      // execute an inline Bash script that consumes STDIN, copies lines, and produces STDOUT and STDERR
-     ( stream&lt;float64 lineTimestamp, int32 lineNumber, rstring stdoutText&gt; A_STDOUTStream ;
-       stream&lt;float64 lineTimestamp, int32 lineNumber, rstring stderrText&gt; A_STDERRStream ) = ShellPipe(LineStream) {
+     ( stream&lt;float64 lineTimestamp, int32 lineNumber, rstring stdoutLine&gt; A_STDOUTStream ;
+       stream&lt;float64 lineTimestamp, int32 lineNumber, rstring stderrLine&gt; A_STDERRStream ) = ShellPipe(LineStream) {
      param
          command: "bash -c \"while read line ; do echo \\$line &gt;&amp;1 ; echo \\$line &gt;&amp;2 ; done\""; }
      () as DebugA_STDOUTStream = FileSink(A_STDOUTStream) { param file: "debug.TestShellPipeInputTuples.A_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
@@ -113,8 +114,8 @@
  
  
      // execute an inline Perl script that consumes STDIN, copies lines, and produces STDOUT and STDERR
-     ( stream&lt;float64 lineTimestamp, int32 lineNumber, rstring stdoutText&gt; B_STDOUTStream as Out1 ;
-       stream&lt;float64 lineTimestamp, int32 lineNumber, rstring stderrText&gt; B_STDERRStream as Out2 ) = ShellPipe(LineStream) {
+     ( stream&lt;float64 lineTimestamp, int32 lineNumber, rstring stdoutLine&gt; B_STDOUTStream as Out1 ;
+       stream&lt;float64 lineTimestamp, int32 lineNumber, rstring stderrLine&gt; B_STDERRStream as Out2 ) = ShellPipe(LineStream) {
      param
          command: "perl -n -e \"print STDOUT \\$_; print STDERR \\$_\"; "; }
      () as DebugB_STDOUTStream = FileSink(B_STDOUTStream) { param file: "debug.TestShellPipeInputTuples.B_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
