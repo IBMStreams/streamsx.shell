@@ -113,7 +113,7 @@
      // execute a stream of shell commands and produce tuples from the lines they write to STDOUT and STDERR, plus a status tuple with the commands' exit codes
      ( stream&lt;rstring line&gt; B_STDOUTStream ;
        stream&lt;rstring line&gt; B_STDERRStream ;
-       stream&lt;StatusType&gt;  B_StatusStream ) = ShellSource(CommandStream) {
+       stream&lt;StatusType&gt;   B_StatusStream ) = ShellSource(CommandStream) {
      output B_StatusStream:
          command = commandLine(),
          exitCode = exitCode(),

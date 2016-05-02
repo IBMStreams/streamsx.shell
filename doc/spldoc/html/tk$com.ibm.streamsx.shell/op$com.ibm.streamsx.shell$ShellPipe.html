@@ -70,14 +70,6 @@
 
 </div>
 
-<div class="section"><h2 class="title sectiontitle">Synchronization
-</h2>
-
-<p class="p">The command or pipeline executes asnychronously from the ShellPipe operator,  and the shell buffers lines between them, so lines read from STDOUT and STDERR are not synchronized with lines written to STDIN. Applications can synchronize tuples consumed and produced by the ShellPipe operator with a Barrier or Gate operator, as illustrated in the sample applications.
-</p>
-
-</div>
-
 <div class="section"><h2 class="title sectiontitle">Sample Applications
 </h2>
 
@@ -240,7 +232,7 @@
 <p class="p">This function can be used in the <tt class="ph tt">output</tt> clause of either output port. It assigns a string value containing the most recently received line sent to the shell command's STDIN input.
 </p>
 
-<p class="p">Note that shell commands execute asynchronously from the operator, and  may emit no output, or many lines of output, for each input line. The value of this function is not synchronized with the output tuples produced  by either output port.
+<p class="p">Note that shell commands execute asynchronously from the operator, and  may emit no output, or many lines of output, for each input line, so the  value of this function is not synchronized with the output tuples produced  by either output port.
 </p>
               <p class="p"/>
 
@@ -279,7 +271,7 @@
 <p class="p">Output attributes that match input attributes in name and type are automatically copied from those input attributes in the most recently received input tuple.
 </p>
 
-<p class="p">Note that shell commands execute asynchronously from the operator, and  may emit no output, or many lines of output, for each input line. The attributes copied are not synchronized with the output tuples produced  by either output port.
+<p class="p">Note that shell commands execute asynchronously from the operator, and  may emit no output, or many lines of output, for each input line, so the  attributes copied are not synchronized with the output tuples produced  by either output port.
 </p>
               <p class="p"/>
 
@@ -318,7 +310,7 @@
 <p class="p">This function can be used in the <tt class="ph tt">output</tt> clause of either output port. It assigns a string value containing the most recently received line sent to the shell command's STDIN input.
 </p>
 
-<p class="p">Note that shell commands execute asynchronously from the operator, and  may emit no output, or many lines of output, for each input line. The value of this function is not synchronized with the output tuples produced  by either output port.
+<p class="p">Note that shell commands execute asynchronously from the operator, and  may emit no output, or many lines of output, for each input line, so the  value of this function is not synchronized with the output tuples produced  by either output port.
 </p>
               <p class="p"/>
 
@@ -357,7 +349,7 @@
 <p class="p">Output attributes that match input attributes in name and type are automatically copied from those input attributes in the most recently received input tuple.
 </p>
 
-<p class="p">Note that shell commands execute asynchronously from the operator, and  may emit no output, or many lines of output, for each input line.  The attributes copied are not synchronized with the output tuples produced  by either output port.
+<p class="p">Note that shell commands execute asynchronously from the operator, and  may emit no output, or many lines of output, for each input line, so the  attributes copied are not synchronized with the output tuples produced  by either output port.
 </p>
               <p class="p"/>
 

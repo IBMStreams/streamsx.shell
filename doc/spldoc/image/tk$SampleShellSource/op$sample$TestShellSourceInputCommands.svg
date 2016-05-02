@@ -181,10 +181,10 @@
       /><rect x="243.994" y="289.1811" width="2.012" style="clip-path:url(#clipPath2); fill:rgb(255,247,142); stroke:none;" rx="0.1257" ry="0.1265" height="2.012"
     /></g
     ><g style="font-size:7; fill:rgb(0,102,153); text-rendering:geometricPrecision; font-family:sans-serif; stroke-linejoin:round; stroke:rgb(0,102,153); stroke-width:2.012; stroke-miterlimit:3.7321;"
-    ><path d="M210 335 L242 335" style="fill:none; clip-path:url(#clipPath2);"
-      /><polygon points=" 242 335 235 332 235 340" style="stroke-miterlimit:10; stroke-width:1; clip-path:url(#clipPath2); stroke:none; stroke-linejoin:miter;"
-      /><path d="M210 325 L226 325 L226 290 L242 290" style="fill:none; clip-path:url(#clipPath2);"
+    ><path d="M210 325 L226 325 L226 290 L242 290" style="fill:none; clip-path:url(#clipPath2);"
       /><polygon points=" 242 290 235 286 235 294" style="stroke-miterlimit:10; stroke-width:1; clip-path:url(#clipPath2); stroke:none; stroke-linejoin:miter;"
+      /><path d="M210 335 L242 335" style="fill:none; clip-path:url(#clipPath2);"
+      /><polygon points=" 242 335 235 332 235 340" style="stroke-miterlimit:10; stroke-width:1; clip-path:url(#clipPath2); stroke:none; stroke-linejoin:miter;"
     /></g
     ><g style="fill:rgb(236,131,101); text-rendering:geometricPrecision; font-size:7; font-family:sans-serif; stroke:rgb(236,131,101);"
     ><rect x="242.988" y="242.4032" width="4.0239" style="clip-path:url(#clipPath2); stroke:none;" rx="0.2515" ry="0.2515" height="4.0239"
@@ -227,10 +227,10 @@
       /><rect x="138.3664" y="60.3212" width="2.012" style="clip-path:url(#clipPath2); fill:rgb(255,247,142); stroke:none;" rx="0.1257" ry="0.1265" height="2.012"
     /></g
     ><g style="font-size:7; fill:rgb(0,102,153); text-rendering:geometricPrecision; font-family:sans-serif; stroke-linejoin:round; stroke:rgb(0,102,153); stroke-width:2.012; stroke-miterlimit:3.7321;"
-    ><path d="M100 175 L111 175 L111 107 L137 107" style="fill:none; clip-path:url(#clipPath2);"
-      /><polygon points=" 137 107 130 103 130 111" style="stroke-miterlimit:10; stroke-width:1; clip-path:url(#clipPath2); stroke:none; stroke-linejoin:miter;"
-      /><path d="M100 175 L111 175 L111 198 L137 198" style="fill:none; clip-path:url(#clipPath2);"
+    ><path d="M100 175 L111 175 L111 198 L137 198" style="fill:none; clip-path:url(#clipPath2);"
       /><polygon points=" 137 198 130 195 130 202" style="stroke-miterlimit:10; stroke-width:1; clip-path:url(#clipPath2); stroke:none; stroke-linejoin:miter;"
+      /><path d="M100 175 L111 175 L111 107 L137 107" style="fill:none; clip-path:url(#clipPath2);"
+      /><polygon points=" 137 107 130 103 130 111" style="stroke-miterlimit:10; stroke-width:1; clip-path:url(#clipPath2); stroke:none; stroke-linejoin:miter;"
       /><path d="M100 175 L111 175 L111 61 L137 61" style="fill:none; clip-path:url(#clipPath2);"
       /><polygon points=" 137 61 130 58 130 65" style="stroke-miterlimit:10; stroke-width:1; clip-path:url(#clipPath2); stroke:none; stroke-linejoin:miter;"
       /><path d="M100 175 L111 175 L111 335 L137 335" style="fill:none; clip-path:url(#clipPath2);"
