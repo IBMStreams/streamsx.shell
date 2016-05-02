@@ -1,0 +1,96 @@
+// Copyright (C) 2016  International Business Machines Corporation
+// All Rights Reserved
+
+
+
+
+
+// manual test:
+// cat ../data/ozymandias.txt|countCharacters.pl - ----- 1>stdout.log 2>stderr.log
+
+
+
+
+namespace sample;
+
+use com.ibm.streamsx.shell::*;
+
+composite TestShellPipeCopyAttributes_1toN_queued {
+
+    param
+    expression<rstring> $inputFile: dataDirectory() + "/ozymandias.txt";
+    expression<rstring> $shellCommand: "./etc/wordCounter_withoutAutoflush.pl";
+    expression<rstring> $tokenDelimiter: "-";
+    expression<rstring> $lineDelimiter: "-----";
+
+    type 
+
+    InputType =
+        float64 inputTimestamp,
+        int64   inputLineNumber,
+        rstring inputLine;
+
+    OutputType =
+        float64 inputTimestamp,
+        int64   inputLineNumber,
+        rstring inputLine,
+        int64   outputWordNumber,
+        int64   outputWordLength,
+        rstring outputWord;
+    
+
+    graph
+
+
+    // create a stream of tuples containing text lines for the ShellPipe operators below to consume
+    stream<InputType> InputStream as Out = FileSource() {
+    param
+        file: $inputFile;
+        format: line;
+   output Out:
+        inputTimestamp = getTimestampInSecs(),
+        inputLineNumber = TupleNumber(); }
+    () as DebugInputStream = FileSink(InputStream) { param file: "debug.TestShellPipeCopyAttributes_1toN_queued.InputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // execute a Perl script that copies lines from STDIN to STDOUT, and copy input attributes to output attributes naively
+    ( stream<rstring stdoutLine> STDOUTStream ;
+      stream<rstring stderrLine> STDERRStream ) = ShellPipe(InputStream) {
+    param
+        command: $shellCommand + " " + $tokenDelimiter + " " + $lineDelimiter;
+        stdinAttribute: inputLine;
+        stdoutAttribute: "stdoutLine";
+        stderrAttribute: "stderrLine"; }
+    () as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeCopyAttributes_1toN_queued.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    () as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeCopyAttributes_1toN_queued.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+        
+
+    // parse the lines written to STDOUT by the command, and explicitly copy input attributes with matching name and type from corresponding input tuple
+    stream<OutputType> OutputStream = Custom(InputStream ; STDOUTStream) {
+    logic 
+    state: { 
+        mutable list<InputType> inputQueue;
+        mutable OutputType outputTuple; }
+    onTuple InputStream: {
+        appendM(inputQueue, InputStream); }
+    onTuple STDOUTStream: {
+        if (stdoutLine==$lineDelimiter) {
+            removeM(inputQueue, 0);
+        } else {
+            list<rstring> tokens = tokenize(stdoutLine, $tokenDelimiter, true);
+            if (size(tokens)!=3) return;
+            assignFrom(outputTuple, inputQueue[0]); // .............. explicitly copy input attributes with matching name and type from corresponding input tuple
+            outputTuple.outputWordNumber = (int64)tokens[0];
+            outputTuple.outputWordLength = (int64)tokens[1];
+            outputTuple.outputWord = tokens[2];
+            submit(outputTuple, OutputStream); }
+    } }
+    () as DebugOutputStream = FileSink(OutputStream) { param file: "debug.TestShellPipeCopyAttributes_1toN_queued.OutputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // log STDERR lines to Streams application trace
+    () as LogSTDERRStream = Custom(STDERRStream) {
+    logic onTuple STDERRStream: {
+          appTrc(Trace.info, "STDERR from command '" + $shellCommand + "': " + stderrLine); } }
+}
+

@@ -4,25 +4,33 @@
   <toolkit name="SampleShellSource" requiredProductVersion="4.1.1.0" version="1.0.0">
     <description/>
     <uriTable>
-      <uri index="3" value="sample/TestShellSourceBasic1.spl"/>
-      <uri index="2" value="sample/TestShellSourceInputTuples.spl"/>
-      <uri index="5" value="sample/TestShellSourceBasic2.spl"/>
-      <uri index="4" value="sample/TestShellSourceBasic3.spl"/>
+      <uri index="6" value="sample/TestShellSourceCopyAttributes.spl"/>
+      <uri index="5" value="sample/TestShellSourceBasic1.spl"/>
+      <uri index="3" value="sample/TestShellSourceInputTuples.spl"/>
+      <uri index="4" value="sample/TestShellSourceBasic2.spl"/>
+      <uri index="2" value="sample/TestShellSourceBasic3.spl"/>
       <uri index="1" value="sample/TestShellSourceInputCommands.spl"/>
     </uriTable>
     <namespace name="sample">
       <compositeOp column="11" line="8" name="TestShellSourceInputCommands" potentialMain="true" uriIndex="1">
         <type column="10" line="10" name="StatusType" type="rstring command, int32 exitCode, rstring exitReason, list&lt;uint64> counters" uriIndex="1"/>
       </compositeOp>
-      <compositeOp column="11" line="8" name="TestShellSourceInputTuples" potentialMain="true" uriIndex="2">
-        <type column="5" line="12" name="CommandType" type="float64 commandTimestamp, int32 commandNumber, rstring command" uriIndex="2"/>
-        <type column="5" line="17" name="StatusType" type="CommandType, tuple&lt;int32 exitCode, rstring exitReason, list&lt;uint64> counters>" uriIndex="2"/>
+      <compositeOp column="11" line="8" name="TestShellSourceBasic3" potentialMain="true" uriIndex="2">
+        <type column="7" line="10" name="ShellStatus" type="rstring command, int32 exitCode, rstring exitReason, list&lt;uint64> counters" uriIndex="2"/>
       </compositeOp>
-      <compositeOp column="11" line="9" name="TestShellSourceBasic1" potentialMain="true" uriIndex="3"/>
-      <compositeOp column="11" line="8" name="TestShellSourceBasic3" potentialMain="true" uriIndex="4">
-        <type column="7" line="10" name="ShellStatus" type="rstring command, int32 exitCode, rstring exitReason, list&lt;uint64> counters" uriIndex="4"/>
+      <compositeOp column="11" line="8" name="TestShellSourceInputTuples" potentialMain="true" uriIndex="3">
+        <type column="5" line="12" name="CommandType" type="float64 commandTimestamp, int32 commandNumber, rstring command" uriIndex="3"/>
+        <type column="5" line="17" name="StatusType" type="CommandType, tuple&lt;int32 exitCode, rstring exitReason, list&lt;uint64> counters>" uriIndex="3"/>
       </compositeOp>
-      <compositeOp column="11" line="8" name="TestShellSourceBasic2" potentialMain="true" uriIndex="5"/>
+      <compositeOp column="11" line="8" name="TestShellSourceBasic2" potentialMain="true" uriIndex="4"/>
+      <compositeOp column="11" line="9" name="TestShellSourceBasic1" potentialMain="true" uriIndex="5"/>
+      <compositeOp column="11" line="18" name="TestShellSourceCopyAttributes" potentialMain="true" uriIndex="6">
+        <parameter defaultValue="dataDirectory() + &quot;/commands.txt&quot;" metaType="Expression" name="commandFile" optional="true" type="&lt;rstring>"/>
+        <type column="5" line="25" name="CommandType" type="float64 commandTimestamp, int64 commandNumber, rstring command" uriIndex="6"/>
+        <type column="5" line="30" name="OutputType" type="float64 commandTimestamp, int64 commandNumber, rstring command, int64 outputLineNumber, int64 outputLineLength, rstring outputLine" uriIndex="6"/>
+        <type column="5" line="38" name="ErrorType" type="float64 commandTimestamp, int64 commandNumber, rstring command, rstring errorLine" uriIndex="6"/>
+        <type column="5" line="44" name="StatusType" type="float64 commandTimestamp, int64 commandNumber, rstring command, int32 exitCode, rstring exitReason, list&lt;uint64> counters" uriIndex="6"/>
+      </compositeOp>
     </namespace>
     <dependency>
       <common:name>com.ibm.streamsx.shell</common:name>

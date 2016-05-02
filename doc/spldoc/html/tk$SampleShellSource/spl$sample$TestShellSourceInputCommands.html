@@ -71,7 +71,7 @@
 </div>
 
 <div class="section splgraph">
-  <embed class="image" src="../../image/tk$SampleShellSource/op$sample$TestShellSourceInputCommands.svg" width="342" height="425"/>
+  <embed class="image" src="../../image/tk$SampleShellSource/op$sample$TestShellSourceInputCommands.svg" width="342" height="427"/>
 </div>
 
 <div class="section"><h2 class="title sectiontitle splhead-2">SPL Source Code</h2>
@@ -113,7 +113,7 @@
      // execute a stream of shell commands and produce tuples from the lines they write to STDOUT and STDERR, plus a status tuple with the commands' exit codes
      ( stream&lt;rstring line&gt; B_STDOUTStream ;
        stream&lt;rstring line&gt; B_STDERRStream ;
-       stream&lt;StatusType&gt;  B_StatusStream ) = ShellSource(CommandStream) {
+       stream&lt;StatusType&gt;   B_StatusStream ) = ShellSource(CommandStream) {
      output B_StatusStream:
          command = commandLine(),
          exitCode = exitCode(),

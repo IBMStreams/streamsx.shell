@@ -35,6 +35,11 @@ private:
   SPL::Mutex mutex_;
   com::ibm::streamsx::linuxshell::LinuxShell shell_;
 
+  // ----------- operator input and output tuples ----------
+
+  IPort0Type inputTuple;
+  <% if ($model->getNumberOfOutputPorts()>0) { %> OPort0Type outputTuple0; <% } %>
+
   // ----------- operator result variables ----------
 
   SPL::rstring commandline;

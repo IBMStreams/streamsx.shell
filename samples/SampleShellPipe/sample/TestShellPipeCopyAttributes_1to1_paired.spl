@@ -1,0 +1,84 @@
+// Copyright (C) 2016  International Business Machines Corporation
+// All Rights Reserved
+
+
+namespace sample;
+
+use com.ibm.streamsx.shell::*;
+
+composite TestShellPipeCopyAttributes_1to1_paired {
+
+    param
+    expression<rstring> $inputFile: dataDirectory() + "/ozymandias.txt";
+    expression<rstring> $shellCommand: "./etc/lineCounter.pl";
+    expression<rstring> $tokenDelimiter: "-";
+
+    type 
+
+    InputType =
+        float64 inputTimestamp,
+        int64   inputLineNumber,
+        rstring inputLine;
+
+    OutputType =
+        float64 inputTimestamp,
+        int64   inputLineNumber,
+        rstring inputLine,
+        int64   outputLineNumber,
+        int64   outputLineLength,
+        rstring outputLine;
+
+
+    graph
+
+
+    // create a stream of tuples containing text lines for the ShellPipe operators below to consume
+    stream<InputType> InputStream as Out = FileSource() {
+    param
+        file: $inputFile;
+        format: line;
+   output Out:
+        inputTimestamp = getTimestampInSecs(),
+        inputLineNumber = TupleNumber(); }
+    () as DebugInputStream = FileSink(InputStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_paired.InputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    ( stream<rstring stdoutLine> STDOUTStream ;
+      stream<rstring stderrLine> STDERRStream ) = ShellPipe(InputStream) {
+    param
+        command: $shellCommand + " " + $tokenDelimiter;
+        stdinAttribute: inputLine;
+        stdoutAttribute: "stdoutLine";
+        stderrAttribute: "stderrLine"; }
+    () as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_paired.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    () as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_paired.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // pair each tuple consumed by the ShellPipe operator with a tuple produced by it
+    stream<InputType, tuple<rstring stdoutLine>> PairedSTDOUTStream = Barrier(InputStream ; STDOUTStream) {}
+    () as DebugPairedSTDOUTStream = FileSink(PairedSTDOUTStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_paired.PairedSTDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // parse the lines written to STDOUT by the command, and copy input attributes with matching name and type from most recently received input tuple, which is probably not the corresponding tuple
+    stream<OutputType> OutputStream = Custom(PairedSTDOUTStream) {
+    logic 
+    state: { mutable OutputType outputTuple; }
+    onTuple PairedSTDOUTStream: {
+        list<rstring> tokens = tokenize(stdoutLine, $tokenDelimiter, true);
+        if (size(tokens)!=3) return;
+        assignFrom(outputTuple, PairedSTDOUTStream); // .......... copy input attributes with matching name and type from most recently received input tuple
+        outputTuple.outputLineNumber = (int64)tokens[0];
+        outputTuple.outputLineLength = (int64)tokens[1];
+        outputTuple.outputLine = tokens[2];
+        submit(outputTuple, OutputStream);
+    } }
+    () as DebugOutputStream = FileSink(OutputStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_naive.OutputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // log STDERR lines to Streams application trace 
+    () as LogSTDERRStream = Custom(STDERRStream as In) {
+    logic onTuple In: {
+          appTrc(Trace.info, "STDERR from command '" + $shellCommand + "': " + stderrLine); } }
+
+}
+

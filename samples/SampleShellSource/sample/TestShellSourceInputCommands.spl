@@ -36,7 +36,7 @@ composite TestShellSourceInputCommands {
     // execute a stream of shell commands and produce tuples from the lines they write to STDOUT and STDERR, plus a status tuple with the commands' exit codes
     ( stream<rstring line> B_STDOUTStream ;
       stream<rstring line> B_STDERRStream ;
-      stream<StatusType>  B_StatusStream ) = ShellSource(CommandStream) {
+      stream<StatusType>   B_StatusStream ) = ShellSource(CommandStream) {
     output B_StatusStream:
         command = commandLine(),
         exitCode = exitCode(),

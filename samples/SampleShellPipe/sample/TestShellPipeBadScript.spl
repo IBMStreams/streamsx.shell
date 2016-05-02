@@ -1,0 +1,36 @@
+// Copyright (C) 2016  International Business Machines Corporation
+// All Rights Reserved
+
+
+namespace sample;
+
+use com.ibm.streamsx.shell::*;
+
+composite TestShellPipeBadScript {
+
+    graph
+
+
+    // create a stream of text lines for the ShellPipe operators below to consume
+    stream<rstring textLine> TextStream = FileSource() {
+    param
+        file: dataDirectory() + "/ozymandias.txt";
+        format: line; }
+    () as DebugTextStream = FileSink(TextStream) { param file: "debug.TestShellPipeBadScript.TextStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // try to execute a Perl script containing a syntax error
+    ( stream<rstring stdoutLine> STDOUTStream ;
+      stream<rstring stderrLine> STDERRStream ) = ShellPipe(TextStream) {
+    param
+        command: "./etc/badscript.pl";  }
+    () as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeBadScript.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    () as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeBadScript.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // log STDERR lines 
+    () as LogSTDERRStream = Custom(STDERRStream as In) {
+    logic onTuple In: {
+          appTrc(Trace.info, "STDERR: " + stderrLine, "TestShellPipeBadScript"); } }
+
+}

@@ -109,6 +109,11 @@ MY_OPERATOR::MY_OPERATOR()
     drained_ = false;
     linecounters.resize(3);
 
+    // clear tuples
+    <% if ($inputPort) { %> commandTuple.clear(); <% } %>
+    outputTuple0.clear();
+    <% if ($outputPort1) { %> outputTuple1.clear(); <% } %>
+
     <% if (!$inputPort) { %>
     SPLAPPTRC(L_INFO, "shell iteration count: " << iterationCount, "ShellSource");
     if (iterationCount>1) { SPLAPPTRC(L_INFO, "shell iteration interval: " << iterationInterval, "ShellSource"); }
@@ -203,7 +208,7 @@ void MY_OPERATOR::process(Tuple const & tuple, uint32_t port)
     <% if ($inputPort) { %>
     // get the command from the input tuple and execute it
     AutoPortMutex apm(mutex_, *this);
-    commandTuple = (SPL::Tuple*)&tuple;
+    commandTuple = (IPort0Type)tuple;
     IPort0Type const & iport$0 = static_cast<IPort0Type const &>(tuple);
     commandline = <%=$commandAttributeGetter%>;
     executeShell(commandline);
@@ -253,36 +258,35 @@ void MY_OPERATOR::executeShell(std::string command) {
 
     // read lines written by the shell to STDOUT and STDIN, and write them to output ports 0 and 1
     try {
-        com::ibm::streamsx::linuxshell::LinuxShell::LineOutput lineOutput;
-        while (!getPE().getShutdownRequested() && !shell_.readLine(lineOutput)) {
+        while (!getPE().getShutdownRequested()) {
+
+            // wait for the next STDOUT and/or STDERR line from the shell
+            int rc = shell_.readLine(stdoutline, stderrline);
+            if (rc<0) break;
 
             // address the input tuple containing the shell command, if there is one
             <% if ($inputPort) { %>
-            IPort0Type const & iport$0 = (IPort0Type const &)*commandTuple;
+            IPort0Type const & iport$0 = (IPort0Type const &)commandTuple;
             <% } %>
 
             // emit a tuple on output port 0 when the shell writes a line to STDOUT
-            if (lineOutput.hasStdoutLine()) {
-                stdoutline = lineOutput.getStdoutLine();
-                OPort0Type outTuple0;
-                <% CodeGenX::copyOutputAttributesFromInputAttributes("outTuple0", $outputPort0, $inputPort); %> ;
-                <% CodeGenX::assignOutputAttributeValues("outTuple0", $outputPort0); %> ;
-                <% print "outTuple0.set_" . $stdoutAttribute->getName() . "(stdoutline); // assign STDOUT line" if $stdoutAttribute && !$stdoutAttribute->hasAssignment(); %>
-                SPLLOG(L_TRACE, "submitting outTuple0" << outTuple0, "ShellSource");
-                submit(outTuple0, 0);
+            if (rc&1) {
+                <% CodeGenX::copyOutputAttributesFromInputAttributes("outputTuple0", $outputPort0, $inputPort); %> ;
+                <% CodeGenX::assignOutputAttributeValues("outputTuple0", $outputPort0); %> ;
+                <% print "outputTuple0.set_" . $stdoutAttribute->getName() . "(stdoutline); // assign STDOUT line" if $stdoutAttribute && !$stdoutAttribute->hasAssignment(); %>
+                SPLLOG(L_TRACE, "submitting outputTuple0" << outputTuple0, "ShellSource");
+                submit(outputTuple0, 0);
                 linecounters[1]++;
             }
 
             // emit a tuple on output port 1, if there is one, when the shell writes a line to STDERR
-            if (lineOutput.hasStderrLine()) {
-                stderrline = lineOutput.getStderrLine();
+            if (rc&2) {
                 <% if ($outputPort1) { %>
-                OPort1Type outTuple1;
-                <% CodeGenX::copyOutputAttributesFromInputAttributes("outTuple1", $outputPort1, $inputPort); %> ;
-                <% CodeGenX::assignOutputAttributeValues("outTuple1", $outputPort1); %> ;
-                <% print "outTuple1.set_" . $stderrAttribute->getName() . "(stderrline); // assign STDERR line" if $stderrAttribute && !$stderrAttribute->hasAssignment(); %>
-                SPLLOG(L_TRACE, "submitting outTuple1" << outTuple1, "ShellSource");
-                submit(outTuple1, 1);
+                <% CodeGenX::copyOutputAttributesFromInputAttributes("outputTuple1", $outputPort1, $inputPort); %> ;
+                <% CodeGenX::assignOutputAttributeValues("outputTuple1", $outputPort1); %> ;
+                <% print "outputTuple1.set_" . $stderrAttribute->getName() . "(stderrline); // assign STDERR line" if $stderrAttribute && !$stderrAttribute->hasAssignment(); %>
+                SPLLOG(L_TRACE, "submitting outputTuple1" << outputTuple1, "ShellSource");
+                submit(outputTuple1, 1);
                 <% } %>
                 linecounters[2]++;
             }
@@ -308,15 +312,15 @@ void MY_OPERATOR::executeShell(std::string command) {
     {
         // address the input tuple containing the shell command, if there is one
         <% if ($inputPort) { %>
-        IPort0Type const & iport$0 = (IPort0Type const &)*commandTuple;
+        IPort0Type const & iport$0 = (IPort0Type const &)commandTuple;
         <% } %>
 
         <% if ($outputPort2) { %>
-        OPort2Type outTuple2;
-        <% CodeGenX::copyOutputAttributesFromInputAttributes("outTuple2", $outputPort2, $inputPort); %> ;
-        <% CodeGenX::assignOutputAttributeValues("outTuple2", $outputPort2); %> ;
-        SPLLOG(L_TRACE, "submitting outTuple2" << outTuple2, "ShellSource");
-        submit(outTuple2, 2);
+        OPort2Type outputTuple2;
+        <% CodeGenX::copyOutputAttributesFromInputAttributes("outputTuple2", $outputPort2, $inputPort); %> ;
+        <% CodeGenX::assignOutputAttributeValues("outputTuple2", $outputPort2); %> ;
+        SPLLOG(L_TRACE, "submitting outputTuple2" << outputTuple2, "ShellSource");
+        submit(outputTuple2, 2);
         <% } %>
     }
 

@@ -1,0 +1,101 @@
+// Copyright (C) 2016  International Business Machines Corporation
+// All Rights Reserved
+
+
+
+
+
+// manual test:
+// cat ../data/ozymandias.txt|countCharacters.pl - ----- 1>stdout.log 2>stderr.log
+
+
+
+
+namespace sample;
+
+use com.ibm.streamsx.shell::*;
+
+composite TestShellPipeSynchronize {
+
+    param
+    expression<rstring> $inputFile: dataDirectory() + "/ozymandias.txt";
+    expression<rstring> $shellCommand: "./etc/wordCounter_withAutoflush.pl";
+    expression<rstring> $tokenDelimiter: "-";
+    expression<rstring> $lineDelimiter: "-----";
+
+    type 
+
+    InputType =
+        float64 inputTimestamp,
+        int64   inputLineNumber,
+        rstring inputLine;
+
+    OutputType =
+        float64 inputTimestamp,
+        int64   inputLineNumber,
+        rstring inputLine,
+        int64   outputWordNumber,
+        int64   outputWordLength,
+        rstring outputWord;
+    
+
+    graph
+
+
+    // create a stream of tuples containing text lines for the ShellPipe operators below to consume
+    stream<InputType> InputStream as Out = FileSource() {
+    param
+        file: $inputFile;
+        format: line;
+   output Out:
+        inputTimestamp = getTimestampInSecs(),
+        inputLineNumber = TupleNumber(); }
+    () as DebugInputStream = FileSink(InputStream) { param file: "debug.TestShellPipeSynchronize.InputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    stream<InputType> GatedInputStream = Gate(InputStream ; GateStream) {
+    param
+        maxUnackedTupleCount: 1;
+        numTuplesToAck: ackCount; }
+    () as DebugGatedInputStream = FileSink(GatedInputStream) { param file: "debug.TestShellPipeSynchronize.GatedInputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // execute a Perl script that copies lines from STDIN to STDOUT, ............................
+    ( stream<InputType, tuple<rstring stdoutLine>> STDOUTStream ;
+      stream<rstring stderrLine> STDERRStream ) = ShellPipe(GatedInputStream) {
+    param
+        command: $shellCommand + " " + $tokenDelimiter + " " + $lineDelimiter;
+        stdinAttribute: inputLine;
+        stdoutAttribute: "stdoutLine";
+        stderrAttribute: "stderrLine"; }
+    () as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeSynchronize.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    () as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeSynchronize.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+        
+
+    // .....................
+    ( stream<OutputType> OutputStream ;
+      stream<int32 ackCount> GateStream ) = Custom(STDOUTStream) {
+    logic 
+    state: { 
+        mutable OutputType outputTuple; }
+    onTuple STDOUTStream: {
+        if (stdoutLine==$lineDelimiter) {
+            submit( { ackCount=1 }, GateStream);
+        } else {
+            list<rstring> tokens = tokenize(stdoutLine, $tokenDelimiter, true);
+            if (size(tokens)!=3) return;
+            assignFrom(outputTuple, STDOUTStream); // .............. 
+            outputTuple.outputWordNumber = (int64)tokens[0];
+            outputTuple.outputWordLength = (int64)tokens[1];
+            outputTuple.outputWord = tokens[2];
+            submit(outputTuple, OutputStream); }
+    } }
+    () as DebugOutputStream = FileSink(OutputStream) { param file: "debug.TestShellPipeSynchronize.OutputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // log STDERR lines to Streams application trace
+    () as LogSTDERRStream = Custom(STDERRStream) {
+    logic onTuple STDERRStream: {
+          appTrc(Trace.info, "STDERR from command '" + $shellCommand + "': " + stderrLine); } }
+}
+

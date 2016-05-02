@@ -6,21 +6,44 @@
 use strict;
 use warnings;
 
+unshift @INC, dirname($model->getContext()->getOperatorDirectory()) . "/../impl/bin";
+require CodeGenX;
+
 # get Perl objects for the operator's input and output ports
 
-my $inputPort = $model->getNumberOfInputPorts()>0 ? $model->getInputPortAt(0) : undef;
+my $inputPort = $model->getInputPortAt(0);
+my $outputPort0 = $model->getNumberOfOutputPorts()>0 ? $model->getOutputPortAt(0) : undef;
 
 # get C++ expressions to get the values of the operator's parameters
 
 my $command = $model->getParameterByName("command")->getValueAt(0)->getCppExpression();
-my $stdinAttribute = $model->getParameterByName("stdinAttribute") ? $model->getParameterByName("stdinAttribute")->getValueAt(0)->getCppExpression() : undef;
+my $stdinAttributeGetter = $model->getParameterByName("stdinAttribute") ? $model->getParameterByName("stdinAttribute")->getValueAt(0)->getCppExpression() : undef;
+my $stderrAttributeName = $model->getParameterByName("stderrAttribute") ? $model->getParameterByName("stderrAttribute")->getValueAt(0)->getSPLExpression() : undef;
 
-# get attribute for input line
+# who would put quotes around a literal constant?
 
-if (!$stdinAttribute) {
+$stderrAttributeName =~ s/^\"|\"$//g if $stderrAttributeName;
+
+# basic safety checks
+
+SPL::CodeGen::exitln("sorry, 'stderrAttributeName' parameter cannot be specified without an output port") if $stderrAttributeName && !$outputPort0;
+
+# get attribute for input and output lines
+
+if (!$stdinAttributeGetter) {
    foreach my $attribute ( @{ $inputPort->getAttributes() } ) {
-       $stdinAttribute = "iport\$0.get_" . $attribute->getName() . "()", last if $attribute->getSPLType() eq "rstring"; }
-   SPL::CodeGen::exitln("sorry, no attribute of type 'rstring' found for input port") unless $stdinAttribute;
+       $stdinAttributeGetter = "iport\$0.get_" . $attribute->getName() . "()", last if $attribute->getSPLType() eq "rstring"; }
+   SPL::CodeGen::exitln("sorry, no attribute of type 'rstring' found for input port") unless $stdinAttributeGetter;
+}
+
+my $stderrAttribute;
+if ($outputPort0) {
+    foreach my $attribute ( @{ $outputPort0->getAttributes() } ) {
+        $stderrAttribute = $attribute if $stderrAttributeName && $attribute->getName() eq $stderrAttributeName;
+        $stderrAttribute = $attribute if !$stderrAttributeName && $attribute->getSPLType() eq "rstring";
+        last if $stderrAttribute; }
+    if (!$stderrAttribute) {
+        SPL::CodeGen::exitln("sorry, no attribute of " . ($stderrAttributeName ? "name '$stderrAttributeName'" : "type 'rstring'") . " found for output port"); }
 }
 
 %>
@@ -53,6 +76,10 @@ MY_OPERATOR::MY_OPERATOR()
 
     // store operator parameters
     commandline = <%=$command%>;
+
+    // clear tuples
+    inputTuple.clear();
+    <% if ($outputPort0) { %> outputTuple0.clear(); <% } %>
 
     // start the command in a shell
     SPLAPPTRC(L_INFO, "starting shell command '" << commandline << "'", "ShellSink");
@@ -102,20 +129,31 @@ void MY_OPERATOR::process(uint32_t idx)
 {
     SPLAPPTRC(L_TRACE, "entering ShellSink process(" << idx << ") ...", "ShellSink");
 
-    // discard lines written by the shell to STDOUT and STDIN
+    // discard lines written by the shell to STDOUT, maybe forward lines written to STDIN
     try {
-        com::ibm::streamsx::linuxshell::LinuxShell::LineOutput lineOutput;
-        while (!getPE().getShutdownRequested() && !shell_.readLine(lineOutput)) {
+        while (!getPE().getShutdownRequested()) {
 
-            // read and discard lines the shell writes to STDOUT
-            if (lineOutput.hasStdoutLine()) {
-                stdoutline = lineOutput.getStdoutLine();
+            // wait for the next STDOUT and/or STDERR line from the shell
+            int rc = shell_.readLine(stdoutline, stderrline);
+            if (rc<0) break;
+
+            // address the most recently received input tuple
+            IPort0Type const & iport$0 = (IPort0Type const &)inputTuple;
+
+            // count and discard lines the shell writes to STDOUT
+            if (rc&1) {
                 linecounters[1]++;
             }
 
-            // read and discard lines the shell writes to STDERR
-            if (lineOutput.hasStderrLine()) {
-                stderrline = lineOutput.getStderrLine();
+            // maybe forward lines the shell writes to STDERR
+            if (rc&2) {
+                <% if ($outputPort0) { %>
+                <% CodeGenX::copyOutputAttributesFromInputAttributes("outputTuple0", $outputPort0, $inputPort); %> ;
+                <% CodeGenX::assignOutputAttributeValues("outputTuple0", $outputPort0); %> ;
+                <% print "outputTuple0.set_" . $stderrAttribute->getName() . "(stderrline); // assign STDERR line" if $stderrAttribute && !$stderrAttribute->hasAssignment(); %>
+                SPLLOG(L_TRACE, "submitting outputTuple0 " << outputTuple0, "ShellSink");
+                submit(outputTuple0, 0);
+                <% } %>
                 linecounters[2]++;
             }
         } }
@@ -153,13 +191,15 @@ void MY_OPERATOR::process(Tuple const & tuple, uint32_t port)
 
     AutoPortMutex apm(mutex_, *this);
 
-    IPort0Type const & iport$0 = static_cast<IPort0Type const &>(tuple);
-    SPLAPPTRC(L_TRACE, "received inTuple " << iport$0, "LinuxPipe");
+    // save a copy of the input tuple for copying input attributes to output tuples
+    inputTuple = (IPort0Type)tuple;
+    SPLAPPTRC(L_TRACE, "received input tuple " << inputTuple, "ShellSink");
 
-    stdinline = <%=$stdinAttribute%>;
+    IPort0Type const & iport$0 = static_cast<IPort0Type const &>(tuple);
+    stdinline = <%=$stdinAttributeGetter%>;
     try { shell_.writeLine(stdinline); }
     catch(com::ibm::streamsx::linuxshell::LinuxShellException const & e) {
-        SPLAPPTRC(L_ERROR, "sorry, could not write to stdin: " << e.what(), "LinuxPipe");
+        SPLAPPTRC(L_ERROR, "sorry, could not write to stdin: " << e.what(), "ShellSink");
         throw;
     }
     linecounters[0]++;
@@ -178,6 +218,8 @@ void MY_OPERATOR::process(Punctuation const & punct, uint32_t port)
         shell_.shutdown(false);
         AutoMutex am(drainMutex_);
         while(!drained_) drainCV_.wait(drainMutex_);
+        forwardWindowPunctuation(Punctuation::WindowMarker);
+        forwardWindowPunctuation(Punctuation::FinalMarker);
     }
 
     SPLAPPTRC(L_TRACE, "leaving ShellSink process(" << punct << "," << port << ") ...", "ShellSink");
