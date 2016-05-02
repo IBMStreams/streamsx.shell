@@ -19,20 +19,20 @@ composite TestShellPipeBasic2 {
     () as DebugTextStream = FileSink(TextStream) { param file: "debug.TestShellPipeBasic2.TextStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
 
-    // execute a Bash script from a file that consumes STDIN, counts lines and characters, and produces STDOUT and STDERR
+    // execute a Bash script from a file that consumes STDIN, counts lines, and produces STDOUT and STDERR
     ( stream<rstring stdoutLine> A_STDOUTStream ;
       stream<rstring stderrLine> A_STDERRStream ) = ShellPipe(TextStream) {
     param
-        command: dataDirectory() + "/countlines2.sh"; }
+        command: "./etc/lineCounter2.sh"; }
     () as DebugA_STDOUTStream = FileSink(A_STDOUTStream) { param file: "debug.TestShellPipeBasic2.A_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
     () as DebugA_STDERRStream = FileSink(A_STDERRStream) { param file: "debug.TestShellPipeBasic2.A_STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
 
-    // execute a Bash script from a file that consumes STDIN, counts lines and characters, and produces STDOUT and STDERR
+    // execute a Bash script from a file that consumes STDIN, counts lines, and produces STDOUT and STDERR
     ( stream<rstring stdoutLine> B_STDOUTStream ;
       stream<rstring stderrLine> B_STDERRStream ) = ShellPipe(TextStream) {
     param
-        command: dataDirectory() + "/countlines2.sh";
+        command: "./etc/lineCounter2.sh";
         stdinAttribute: textLine;
         stdoutAttribute: "stdoutLine";
         stderrAttribute: "stderrLine"; }
@@ -40,20 +40,20 @@ composite TestShellPipeBasic2 {
     () as DebugB_STDERRStream = FileSink(B_STDERRStream) { param file: "debug.TestShellPipeBasic2.B_STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
 
-    // execute a Perl script from a file that consumes STDIN, counts lines and characters, and produces STDOUT and STDERR
+    // execute a Perl script from a file that consumes STDIN, counts lines, and produces STDOUT and STDERR
     ( stream<rstring stdoutLine> C_STDOUTStream ;
       stream<rstring stderrLine> C_STDERRStream ) = ShellPipe(TextStream) {
     param
-        command: dataDirectory() + "/countlines2.pl";  }
+        command: "./etc/lineCounter2.pl";  }
     () as DebugC_STDOUTStream = FileSink(C_STDOUTStream) { param file: "debug.TestShellPipeBasic2.C_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
     () as DebugC_STDERRStream = FileSink(C_STDERRStream) { param file: "debug.TestShellPipeBasic2.C_STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
 
-    // execute an inline Bash script that consumes STDIN, counts lines and characters, and produces STDOUT and STDERR
+    // execute an inline Bash script that consumes STDIN, counts lines, and produces STDOUT and STDERR
     ( stream<rstring stdoutLine> D_STDOUTStream ;
       stream<rstring stderrLine> D_STDERRStream ) = ShellPipe(TextStream) {
     param
-        command: "bash -c \"count=0; while read line ; do echo \\$count \\${#line} \\$line >&1 ; echo \\$count \\${#line} \\$line >&2 ; (( count += 1 )) ; done\"";
+        command: "bash -c \"count=0; while read line ; do (( count += 1 )) ; echo \\$count \\${#line} \\$line >&1 ; echo \\$count \\${#line} \\$line >&2 ; done\"";
         stdinAttribute: textLine;
         stdoutAttribute: "stdoutLine";
         stderrAttribute: "stderrLine"; }
@@ -61,11 +61,11 @@ composite TestShellPipeBasic2 {
     () as DebugD_STDERRStream = FileSink(D_STDERRStream) { param file: "debug.TestShellPipeBasic2.D_STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
 
-    // execute an inline Perl script that consumes STDIN, counts lines and characters, and produces STDOUT and STDERR
+    // execute an inline Perl script that consumes STDIN, counts lines, and produces STDOUT and STDERR
     ( stream<rstring stdoutLine> E_STDOUTStream ;
       stream<rstring stderrLine> E_STDERRStream ) = ShellPipe(TextStream) {
     param
-        command: "perl -n -e \"print STDOUT \\$count . ' ' . length . ' ' . \\$_; print STDERR \\$count++ . ' ' . length . ' ' . \\$_\"; ";
+        command: "perl -n -e \"print STDOUT ++\\$count . ' ' . length . ' ' . \\$_; print STDERR \\$count . ' ' . length . ' ' . \\$_\"; ";
         stdinAttribute: textLine;
         stdoutAttribute: "stdoutLine";
         stderrAttribute: "stderrLine"; }

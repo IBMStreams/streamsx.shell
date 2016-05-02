@@ -9,7 +9,7 @@
 #set -o pipefail
 
 namespace=sample
-composite=TestShellPipeInputTuples
+composite=TestShellPipeCopyAttributes_1to1_naive
 
 here=$( cd ${0%/*} ; pwd )
 projectDirectory=$( cd $here/.. ; pwd )

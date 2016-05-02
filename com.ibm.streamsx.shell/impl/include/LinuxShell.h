@@ -25,39 +25,6 @@
 #include <SPL/Runtime/Utility/RuntimeUtility.h>
 #include <SPL/Runtime/Common/RuntimeException.h>
 
-    /*! Helper class to launch a linux pipe command
-    Usage:
-    \code
-    // Writer thread
-    LinuxShell pipe;
-    try {
-        pipe.setup("sed 's/streams/STREAMS/g' | sed 's/spl/SPL/g'");
-    } catch(SPLRuntimeException const & e) {
-        cerr << "Error during pipe setup: " << e.getExplanation() << endl;
-        throw;
-    }
-    try {
-        while(getLine(line)) { // getLine() is a user function
-            pipe.writeLine(line);
-        }
-    } catch(SPLRuntimeException const & e) {
-        cerr << "Error during pipe write: " << e.getExplanation() << endl;
-        throw;
-    }
-    pipe.shutdown();
-
-    // reader thread
-    LineOutput res;
-    try {
-        while(!pipe.readLine(res)) {
-            useLine(res); // useLine() is a user function
-        }
-    } catch(SPLRuntimeException const & e) {
-        cerr << "Error during pipe read: " << e.getExplanation() << endl;
-        throw;
-    }
-    \endcode
-    */
 
 namespace com { namespace ibm { namespace streamsx { namespace linuxshell {
 
@@ -83,38 +50,6 @@ namespace com { namespace ibm { namespace streamsx { namespace linuxshell {
           
           /// Destructor
           ~LinuxShell() { terminate(); }
-
-
-          //~~~~~~~~~~~~~~~~~~~~ sub-class LineOutput ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          
-          // This class returns STDOUT and STDERR lines recieved from the shell
-          
-        public:
-          class LineOutput
-          {
-          public:
-            LineOutput() : hasStdout_(false), hasStderr_(false) {}
-            bool hasStdoutLine() const { return hasStdout_; }
-            bool hasStderrLine() const { return hasStderr_; }
-            std::string const & getStdoutLine() const { return stdoutLine_; }
-            std::string const & getStderrLine() const { return stderrLine_; }
-            
-          private:
-            LineOutput(std::string const * stdoutLine, std::string const * stderrLine): hasStdout_(false), hasStderr_(false)
-              {
-                if (stdoutLine) { hasStdout_ = true; stdoutLine_ = *stdoutLine; }
-                if (stderrLine) { hasStderr_ = true; stderrLine_ = *stderrLine; }
-              }
-            
-          private: 
-            bool hasStdout_;
-            bool hasStderr_;
-            std::string stdoutLine_;
-            std::string stderrLine_;
-            friend class LinuxShell;
-          };
-          
-          //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
           
           enum ReasonCode
           {
@@ -304,17 +239,22 @@ namespace com { namespace ibm { namespace streamsx { namespace linuxshell {
         /// available, return both. Otherwise, return one. This call will block
         /// until there is a line to read.
         /// @param res (out parameter) the read line(s)
-        /// @return true if the pipeline was shutdown properly and there is no
-        /// more data to be read.
+        /// @return 
+        /// 1 if a standard output line was returned, bu standard error was not
+        /// 2 if a standard error line was returned, but standard output was not
+        /// 3 if both standard output and standard error were returned
+        /// -1 if both standard output and standard error have been closed by the shell
+        /// -2 if something went wrong in the function's read loop
         /// @throws LinuxShellException if the pipe has terminated. The
         /// getTerminationInfo() function should be used to check for the
         /// reason.
 
         public:
-          bool readLine(LineOutput & out)
+          int readLine(std::string & outline, std::string & errline)
           {
-            std::string outline, errline;
             bool haveOutline = false, haveErrline = false;
+            outline.clear();
+            errline.clear();
 
             // keep reading from STDOUT and STDERR until one or both has a complete line of text
             while (!haveOutline && !haveErrline) {
@@ -343,16 +283,15 @@ namespace com { namespace ibm { namespace streamsx { namespace linuxshell {
                 stderrBuffer_.clear();
               }
 
-              // if we have a complete line from either STDOUT or STDERR, return it (or both) and 'false'
+              // if we have a complete line from either STDOUT or STDERR, return it (or both)
               if(haveOutline || haveErrline) {
-                out = LineOutput(haveOutline?(&outline):NULL, haveErrline?(&errline):NULL);
-                return false; 
+                return (haveOutline ? 1 : 0) + (haveErrline ? 2 : 0);
               }
 
-              // if both STDOUT and STDERR have returned 'end of file', terminate the shell and return 'true'
+              // if both STDOUT and STDERR have returned 'end of file', terminate the shell and return 'end-of-shell'
               if(stdoutClosed_ && stderrClosed_) {
                 terminate();
-                if(exitReason_==Shutdown) return true;
+                if(exitReason_==Shutdown) return -1;
                 throw LinuxShellException(getTermInfoExplanation()); 
               }
 
@@ -377,7 +316,7 @@ namespace com { namespace ibm { namespace streamsx { namespace linuxshell {
             }
 
             // this should never happen
-            return false;
+            return -2;
           }
 
 

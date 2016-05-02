@@ -4,10 +4,12 @@
   <toolkit name="SampleShellSink" requiredProductVersion="4.1.1.0" version="1.0.0">
     <description/>
     <uriTable>
+      <uri index="2" value="sample/TestShellSinkBadScript.spl"/>
       <uri index="1" value="sample/TestShellSinkBasic.spl"/>
     </uriTable>
     <namespace name="sample">
       <compositeOp column="11" line="9" name="TestShellSinkBasic" potentialMain="true" uriIndex="1"/>
+      <compositeOp column="11" line="9" name="TestShellSinkBadScript" potentialMain="true" uriIndex="2"/>
     </namespace>
     <dependency>
       <common:name>com.ibm.streamsx.shell</common:name>

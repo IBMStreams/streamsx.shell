@@ -71,7 +71,7 @@
 </div>
 
 <div class="section splgraph">
-  <embed class="image" src="../../image/tk$SampleShellSink/op$sample$TestShellSinkBasic.svg" width="237" height="334"/>
+  <embed class="image" src="../../image/tk$SampleShellSink/op$sample$TestShellSinkBasic.svg" width="237" height="336"/>
 </div>
 
 <div class="section"><h2 class="title sectiontitle splhead-2">SPL Source Code</h2>
@@ -98,21 +98,21 @@
      // execute a Bash script from a file that consumes STDIN and appends lines to another file
      () as A_STDOUTSink = ShellSink(TextStream) {
      param
-         command: dataDirectory() + "/savelines.sh " + dataDirectory() + "/debug.TestShellSinkBasic.A_STDOUTStream.out"; }
+         command: getApplicationDir() + "/etc/savelines.sh " + dataDirectory() + "/debug.TestShellSinkBasic.A_STDOUTStream.out"; }
  
  
      // execute a Bash script from a file that consumes STDIN and appends lines to another file
      () as B_STDOUTSink = ShellSink(TextStream) {
      param
          stdinAttribute: textLine;
-         command: dataDirectory() + "/savelines.sh " + dataDirectory() + "/debug.TestShellSinkBasic.B_STDOUTStream.out"; }
+         command: getApplicationDir() + "/etc/savelines.sh " + dataDirectory() + "/debug.TestShellSinkBasic.B_STDOUTStream.out"; }
  
  
      // execute a Perl script from a file that consumes STDIN and appends lines to another file
      () as C_STDOUTSink = ShellSink(TextStream) {
      param
          stdinAttribute: textLine;
-         command: dataDirectory() + "/savelines.pl " + dataDirectory() + "/debug.TestShellSinkBasic.C_STDOUTStream.out"; }
+         command: getApplicationDir() + "/etc/savelines.pl " + dataDirectory() + "/debug.TestShellSinkBasic.C_STDOUTStream.out"; }
  
  
      // execute an inline Bash script that consumes STDIN and appends lines to a file

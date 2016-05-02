@@ -1,0 +1,95 @@
+// Copyright (C) 2016  International Business Machines Corporation
+// All Rights Reserved
+
+
+
+
+
+// manual test:
+// cat ../data/ozymandias.txt|countCharacters.pl - ----- 1>stdout.log 2>stderr.log
+
+
+
+
+namespace sample;
+
+use com.ibm.streamsx.shell::*;
+
+composite TestShellSourceCopyAttributes {
+
+    param
+    expression<rstring> $commandFile: dataDirectory() + "/commands.txt";
+
+    type 
+
+    CommandType =
+        float64 commandTimestamp,
+        int64   commandNumber,
+        rstring command;
+
+    OutputType =
+        float64 commandTimestamp,
+        int64   commandNumber,
+        rstring command,
+        int64   outputLineNumber,
+        int64   outputLineLength,
+        rstring outputLine;
+    
+    ErrorType =
+        float64 commandTimestamp,
+        int64   commandNumber,
+        rstring command,
+        rstring errorLine;
+
+    StatusType =
+        float64 commandTimestamp,
+        int64   commandNumber,
+        rstring command,
+        int32   exitCode,
+        rstring exitReason,
+        list<uint64> counters ;
+
+    graph
+
+
+    // create a stream of shell commands for the ShellSource operators below to consume
+    stream<CommandType> CommandStream as Out = FileSource() {
+    param
+        file: $commandFile;
+        format: line;
+   output Out:
+        commandTimestamp = getTimestampInSecs(),
+        commandNumber = TupleNumber(); }
+    () as DebugCommandStream = FileSink(CommandStream) { param file: "debug.TestShellSourceCopyAttributes.CommandStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // execute a stream of shell commands and produce tuples from the lines they write to STDOUT and STDERR, plus a status tuple with the commands' exit codes
+    ( stream<OutputType> OutputStream ;
+      stream<ErrorType> ErrorStream ;
+      stream<StatusType> StatusStream ) = ShellSource(CommandStream) {
+    logic 
+        state: { mutable int64 lineCounter = 0l; }
+    param
+        commandAttribute: command;
+        stdoutAttribute: "outputLine";
+        stderrAttribute: "errorLine";
+    output 
+    OutputStream:
+        outputLineNumber = ++lineCounter,
+        outputLineLength = (int64)length(stdoutLine()),
+        outputLine = stdoutLine();
+    StatusStream:
+        exitCode = exitCode(),
+        exitReason = exitReason(),
+        counters = lineCounters(); }
+    () as DebugOutputStream = FileSink(OutputStream) { param file: "debug.TestShellSourceCopyAttributes.OutputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    () as DebugErrorStream = FileSink(ErrorStream) { param file: "debug.TestShellSourceCopyAttributes.ErrorStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    () as DebugStatusStream = FileSink(StatusStream) { param file: "debug.TestShellSourceCopyAttributes.StatusStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // log STDERR lines to Streams application trace
+    () as LogErrorStream = Custom(ErrorStream) {
+    logic onTuple ErrorStream: {
+          appTrc(Trace.info, "STDERR from command '" + command + "': " + errorLine); } }
+}
+

@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="SPL File TestShellPipeSynchronize.spl"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="spldoc_compilationunit"/>
+<link rel="stylesheet" type="text/css" href="../../html/commonltr.css"/>
+<link rel="stylesheet" type="text/css" href="../../html/spldoc.css"/>
+<title>SPL File TestShellPipeSynchronize.spl</title>
+</head>
+<body id="spldoc_compilationunit">
+
+
+<h1 class="title topictitle1">SPL File <tt class="ph tt">TestShellPipeSynchronize.spl</tt></h1>
+
+<div class="body refbody">
+<div class="section">
+<p class="p">
+<a class="xref" href="../toolkits/toolkits.html">Toolkits</a> &gt; <a class="xref" href="tk$SampleShellPipe.html">SampleShellPipe 1.0.0</a> &gt; <a class="xref" href="ns$sample.html">sample</a> &gt; TestShellPipeSynchronize.spl</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Content</h2>
+  
+  <dl class="dl">
+    <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+    
+      <dt class="dt dlterm splhead-2">Operators</dt>
+
+      <dd class="dd">
+<ul class="sl simple">
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$sample$TestShellPipeSynchronize.html#spldoc_compilationunit__composite_operator__TestShellPipeSynchronize">TestShellPipeSynchronize</a></strong>
+</li>
+
+</ul>
+
+      </dd>
+
+    
+  </dl>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Composites</h2>
+  
+</div>
+
+<div class="section" id="spldoc_compilationunit__composite_operator__TestShellPipeSynchronize"><h2 class="title sectiontitle splpart">public composite TestShellPipeSynchronize</h2>
+  
+</div>
+
+<div class="section"><h2 class="title sectiontitle">Parameters</h2>
+
+<ul class="sl simple">
+<li class="sli"><strong class="ph b">inputFile</strong>
+</li>
+
+<li class="sli"><strong class="ph b">shellCommand</strong>
+</li>
+
+<li class="sli"><strong class="ph b">tokenDelimiter</strong>
+</li>
+
+<li class="sli"><strong class="ph b">lineDelimiter</strong>
+</li>
+
+</ul>
+
+</div>
+
+<div class="section">
+</div>
+
+<div class="section">
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-2">Composite Operator Graph</h2>
+  
+</div>
+
+<div class="section splgraph">
+  <embed class="image" src="../../image/tk$SampleShellPipe/op$sample$TestShellPipeSynchronize.svg" width="572" height="266"/>
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-2">SPL Source Code</h2>
+  
+</div>
+
+
+<div class="section">
+   <pre class="pre codeblock">
+
+ composite TestShellPipeSynchronize {
+ 
+     param
+     expression&lt;rstring&gt; $inputFile: dataDirectory() + "/ozymandias.txt";
+     expression&lt;rstring&gt; $shellCommand: "./etc/wordCounter_withAutoflush.pl";
+     expression&lt;rstring&gt; $tokenDelimiter: "-";
+     expression&lt;rstring&gt; $lineDelimiter: "-----";
+ 
+     type 
+ 
+     InputType =
+         float64 inputTimestamp,
+         int64   inputLineNumber,
+         rstring inputLine;
+ 
+     OutputType =
+         float64 inputTimestamp,
+         int64   inputLineNumber,
+         rstring inputLine,
+         int64   outputWordNumber,
+         int64   outputWordLength,
+         rstring outputWord;
+     
+ 
+     graph
+ 
+ 
+     // create a stream of tuples containing text lines for the ShellPipe operators below to consume
+     stream&lt;InputType&gt; InputStream as Out = FileSource() {
+     param
+         file: $inputFile;
+         format: line;
+    output Out:
+         inputTimestamp = getTimestampInSecs(),
+         inputLineNumber = TupleNumber(); }
+     () as DebugInputStream = FileSink(InputStream) { param file: "debug.TestShellPipeSynchronize.InputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+ 
+ 
+     stream&lt;InputType&gt; GatedInputStream = Gate(InputStream ; GateStream) {
+     param
+         maxUnackedTupleCount: 1;
+         numTuplesToAck: ackCount; }
+     () as DebugGatedInputStream = FileSink(GatedInputStream) { param file: "debug.TestShellPipeSynchronize.GatedInputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+ 
+ 
+     // execute a Perl script that copies lines from STDIN to STDOUT, ............................
+     ( stream&lt;InputType, tuple&lt;rstring stdoutLine&gt;&gt; STDOUTStream ;
+       stream&lt;rstring stderrLine&gt; STDERRStream ) = ShellPipe(GatedInputStream) {
+     param
+         command: $shellCommand + " " + $tokenDelimiter + " " + $lineDelimiter;
+         stdinAttribute: inputLine;
+         stdoutAttribute: "stdoutLine";
+         stderrAttribute: "stderrLine"; }
+     () as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeSynchronize.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+     () as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeSynchronize.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+         
+ 
+     // .....................
+     ( stream&lt;OutputType&gt; OutputStream ;
+       stream&lt;int32 ackCount&gt; GateStream ) = Custom(STDOUTStream) {
+     logic 
+     state: { 
+         mutable OutputType outputTuple; }
+     onTuple STDOUTStream: {
+         if (stdoutLine==$lineDelimiter) {
+             submit( { ackCount=1 }, GateStream);
+         } else {
+             list&lt;rstring&gt; tokens = tokenize(stdoutLine, $tokenDelimiter, true);
+             if (size(tokens)!=3) return;
+             assignFrom(outputTuple, STDOUTStream); // .............. 
+             outputTuple.outputWordNumber = (int64)tokens[0];
+             outputTuple.outputWordLength = (int64)tokens[1];
+             outputTuple.outputWord = tokens[2];
+             submit(outputTuple, OutputStream); }
+     } }
+     () as DebugOutputStream = FileSink(OutputStream) { param file: "debug.TestShellPipeSynchronize.OutputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+ 
+ 
+     // log STDERR lines to Streams application trace
+     () as LogSTDERRStream = Custom(STDERRStream) {
+     logic onTuple STDERRStream: {
+           appTrc(Trace.info, "STDERR from command '" + $shellCommand + "': " + stderrLine); } }
+ }
+
+   </pre>
+
+</div>
+
+</div>
+
+
+</body>
+</html>

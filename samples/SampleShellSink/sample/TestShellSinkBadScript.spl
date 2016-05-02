@@ -1,0 +1,34 @@
+// Copyright (C) 2016  International Business Machines Corporation
+// All Rights Reserved
+
+
+namespace sample;
+
+use com.ibm.streamsx.shell::*;
+
+composite TestShellSinkBadScript {
+
+    graph
+
+
+    // create a stream of text lines for the ShellSink operator below to consume
+    stream<rstring textLine> TextStream = FileSource() {
+    param
+        file: dataDirectory() + "/ozymandias.txt";
+        format: line; }
+    () as DebugTextStream = FileSink(TextStream) { param file: "debug.TestShellSinkBadScript.TextStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // try to execute a Perl script containing a syntax error
+    stream<rstring stderrLine> STDERRStream = ShellSink(TextStream) {
+    param
+        command: "./etc/badscript.pl";  }
+    () as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellSinkBadScript.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+
+
+    // log STDERR lines 
+    () as LogSTDERRStream = Custom(STDERRStream as In) {
+    logic onTuple In: {
+          appTrc(Trace.info, "STDERR: " + stderrLine); } }
+
+}

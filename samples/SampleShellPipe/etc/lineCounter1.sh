@@ -3,10 +3,11 @@
 ## Copyright (C) 2016  International Business Machines Corporation
 ## All Rights Reserved
 
-echo "passing STDIN through 'bash' to STDOUT ..." 
+self=$( basename $0 .pl )
+echo "passing STDIN through '$self' to STDOUT ..." 
 
 count=0
-while read line ; do echo $count ${#line} $line ; (( count += 1 )) ; done
+while read line ; do (( count += 1 )) ; echo $count ${#line} $line ; done
 
 echo "... done with STDIN" >&1
 
