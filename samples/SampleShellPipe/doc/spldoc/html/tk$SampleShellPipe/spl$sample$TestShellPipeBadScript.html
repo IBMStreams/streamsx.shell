@@ -71,7 +71,7 @@
 </div>
 
 <div class="section splgraph">
-  <embed class="image" src="../../image/tk$SampleShellPipe/op$sample$TestShellPipeBadScript.svg" width="347" height="200"/>
+  <embed class="image" src="../../image/tk$SampleShellPipe/op$sample$TestShellPipeBadScript.svg" width="347" height="198"/>
 </div>
 
 <div class="section"><h2 class="title sectiontitle splhead-2">SPL Source Code</h2>
@@ -104,7 +104,7 @@
      () as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeBadScript.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  
  
-     // log STDERR lines 
+     // log STDERR lines to Streams application trace
      () as LogSTDERRStream = Custom(STDERRStream as In) {
      logic onTuple In: {
            appTrc(Trace.info, "STDERR: " + stderrLine, "TestShellPipeBadScript"); } }

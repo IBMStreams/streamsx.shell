@@ -37,7 +37,7 @@
 
       <dd class="dd">
 <ul class="sl simple">
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$sample$TestShellPipeCopyAttributes_1to1_naive.html#spldoc_compilationunit__composite_operator__TestShellPipeCopyAttributes_1to1_naive">TestShellPipeCopyAttributes_1to1_naive</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$sample$TestShellPipeCopyAttributes_1to1_naive.html#spldoc_compilationunit__composite_operator__TestShellPipeCopyAttributes_1to1_naive">TestShellPipeCopyAttributes_1to1_naive</a></strong>: This sample application executes a Perl script with the ShellPipe operator.
 </li>
 
 </ul>
@@ -57,16 +57,32 @@
   
 </div>
 
+<div class="section">
+
+<p class="p">This sample application executes a Perl script with the ShellPipe operator.  Lines of text consumed from attributes in input tuples are written to the script via STDIN, and lines of text written to STDOUT by the script are produced as attributes in output tuples. The ShellPipe operator copies other output attributes from the most recently consumed input tuple. This is probably not what you want.
+</p>
+
+<p class="p">The ShellPipe operator executes the script asynchronously from Streams, and the shell buffers the data flowing between them. This is good for performance, because it allows Streams and the script to execute concurrently. But, it allows the operator to consume more input tuples before the script's output from previous tuples is received. That is, input and output tuples may get out of sync. So, the operator may copy attributes from later input tuples to earlier output tuples.
+</p>
+
+<p class="p">This sample application illustrates the problem of copying attributes directly from input tuples to output tuples when they are out of sync due to buffering and  asynchronous execution in a shell.
+</p>
+
+<p class="p">The <tt class="ph tt">TestShellPipeCopyAttributes_1to1_paired.spl</tt> application shows a solution to this problem for scripts that write one output line for each input line,  that is, for scripts with a "1 to 1" ratio of input to output lines.
+</p>
+
+</div>
+
 <div class="section"><h2 class="title sectiontitle">Parameters</h2>
 
 <ul class="sl simple">
-<li class="sli"><strong class="ph b">inputFile</strong>
+<li class="sli"><strong class="ph b">inputFile</strong>: specifies an input file containing lines of text that will be written to a script as its STDIN.  The default input file contains a short poem published by Percy Bysshe Shelley in 1818. 
 </li>
 
-<li class="sli"><strong class="ph b">shellCommand</strong>
+<li class="sli"><strong class="ph b">shellCommand</strong>: specifies a shell command that will be excuted by the ShellPipe operator. The default command is a Perl script that reads lines of text from STDIN and writes them to STDOUT,  prefixed by an output line number and the number of characters in the line. 
 </li>
 
-<li class="sli"><strong class="ph b">tokenDelimiter</strong>
+<li class="sli"><strong class="ph b">tokenDelimiter</strong>: specifies a character that will be inserted between the numbers and the line of text in STDOUT. The default delimiter character is a hyphen "-". 
 </li>
 
 </ul>
@@ -84,7 +100,7 @@
 </div>
 
 <div class="section splgraph">
-  <embed class="image" src="../../image/tk$SampleShellPipe/op$sample$TestShellPipeCopyAttributes_1to1_naive.svg" width="452" height="200"/>
+  <embed class="image" src="../../image/tk$SampleShellPipe/op$sample$TestShellPipeCopyAttributes_1to1_naive.svg" width="452" height="198"/>
 </div>
 
 <div class="section"><h2 class="title sectiontitle splhead-2">SPL Source Code</h2>
@@ -131,7 +147,6 @@
      () as DebugInputStream = FileSink(InputStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_naive.InputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  
  
-     // execute a Perl script that copies lines from STDIN to STDOUT, ?????????????????????????
      ( stream&lt;InputType, tuple&lt;rstring stdoutLine&gt;&gt; STDOUTStream ;
        stream&lt;rstring stderrLine&gt; STDERRStream ) = ShellPipe(InputStream) {
      param

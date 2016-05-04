@@ -28,7 +28,7 @@ composite TestShellPipeBadScript {
     () as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeBadScript.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
 
-    // log STDERR lines 
+    // log STDERR lines to Streams application trace
     () as LogSTDERRStream = Custom(STDERRStream as In) {
     logic onTuple In: {
           appTrc(Trace.info, "STDERR: " + stderrLine, "TestShellPipeBadScript"); } }
