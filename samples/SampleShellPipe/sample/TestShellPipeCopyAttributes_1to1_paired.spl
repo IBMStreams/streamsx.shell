@@ -6,6 +6,58 @@ namespace sample;
 
 use com.ibm.streamsx.shell::*;
 
+/**
+
+This sample application executes a Perl script with the ShellPipe operator,
+flowing Streams tuples through the script asynchronously,
+then pairing the ShellPipe operator's input and output tuples,
+using a downstream Barrier operator.
+
+The script copies lines of text from STDIN to STDOUT, 
+prefixing them with line numbers and the number of characters on each line.
+The operator writes lines of text consumed from input tuples to STDIN,
+and produces output tuples containing lines of text read from STDOUT.
+(This application does not expect the script to write anything to STDERR.
+If something is written to STDERR, it will be logged in the Streams application trace.)
+A downstream Barrier operator pairs input tuples and output tuples
+and copies attributes with matching names and types.
+This is probably what you want for scripts that write one output line for each input line, 
+that is, for scripts with a "1 to 1" ratio of input and output lines.
+
+The ShellPipe operator executes its command asynchronously from Streams, 
+and the shell buffers the data flowing between them.
+This is good for performance, because it allows Streams and the command to execute concurrently.
+But, it allows the operator to consume multiple input tuples 
+before the script's output from previous tuples is received.
+That is, input and output tuples may get out of sync,
+so it should not be used to copy attributes from input tuples to output tuples.
+In this application, 
+the Barrier operator copies attributes into output tuples from the corresponding input tuple.
+
+This sample application illustrates one possible solution to the problem of copying attributes
+from input tuples to output tuples that are out of sync due to buffering and 
+asynchronous execution in a shell.
+The [sample::TestShellPipeCopyAttributes_1toN_queued] application shows another solution to this problem
+for scripts that write more than one output line for each input line.
+
+The Perl script used by this sample application can be tested independently on Streams 
+by entering this command at a Linux prompt:
+
+    cd .../samples/SampleShellPipe
+    cat ./data/ozymandias.txt | ./etc/lineCounter.pl - 
+
+@param inputFile specifies an input file containing lines of text
+that will be written to a script as its STDIN. 
+The default input file contains a short poem published in 1818 by Percy Bysshe Shelley.
+
+@param shellCommand specifies a shell command that will be excuted by the ShellPipe operator.
+The default command is a Perl script that reads lines of text from STDIN and writes them to STDOUT, 
+prefixed by an output line number and the number of characters in the line.
+
+@param tokenDelimiter specifies a character that will be inserted between the numbers
+and the line of text in STDOUT. The default delimiter character is a hyphen "-".
+
+ */
 composite TestShellPipeCopyAttributes_1to1_paired {
 
     param
@@ -43,6 +95,7 @@ composite TestShellPipeCopyAttributes_1to1_paired {
     () as DebugInputStream = FileSink(InputStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_paired.InputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
 
+    // execute the shell command, writing input attributes to STDIN and reading output attributes from STDOUT
     ( stream<rstring stdoutLine> STDOUTStream ;
       stream<rstring stderrLine> STDERRStream ) = ShellPipe(InputStream) {
     param
@@ -54,25 +107,24 @@ composite TestShellPipeCopyAttributes_1to1_paired {
     () as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_paired.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
 
-    // pair each tuple consumed by the ShellPipe operator with a tuple produced by it
+    // pair each tuple consumed by the ShellPipe operator with the tuple it produced, and copy matching output attributes from the input tuple
     stream<InputType, tuple<rstring stdoutLine>> PairedSTDOUTStream = Barrier(InputStream ; STDOUTStream) {}
     () as DebugPairedSTDOUTStream = FileSink(PairedSTDOUTStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_paired.PairedSTDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
 
-    // parse the lines written to STDOUT by the command, and copy input attributes with matching name and type from most recently received input tuple, which is probably not the corresponding tuple
+    // parse the lines written to STDOUT by the command, and copy matching attributes 
     stream<OutputType> OutputStream = Custom(PairedSTDOUTStream) {
     logic 
     state: { mutable OutputType outputTuple; }
     onTuple PairedSTDOUTStream: {
         list<rstring> tokens = tokenize(stdoutLine, $tokenDelimiter, true);
         if (size(tokens)!=3) return;
-        assignFrom(outputTuple, PairedSTDOUTStream); // .......... copy input attributes with matching name and type from most recently received input tuple
+        assignFrom(outputTuple, PairedSTDOUTStream); 
         outputTuple.outputLineNumber = (int64)tokens[0];
         outputTuple.outputLineLength = (int64)tokens[1];
         outputTuple.outputLine = tokens[2];
-        submit(outputTuple, OutputStream);
-    } }
-    () as DebugOutputStream = FileSink(OutputStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_naive.OutputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+        submit(outputTuple, OutputStream); } }
+    () as DebugOutputStream = FileSink(OutputStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_paired.OutputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
 
     // log STDERR lines to Streams application trace 

@@ -1,25 +1,97 @@
 // Copyright (C) 2016  International Business Machines Corporation
 // All Rights Reserved
 
-
-
-
-
-// manual test:
-// cat ../data/ozymandias.txt|countCharacters.pl - ----- 1>stdout.log 2>stderr.log
-
-
-
-
 namespace sample;
 
 use com.ibm.streamsx.shell::*;
 
+/**
+
+This sample application executes a Perl script with the ShellPipe operator, 
+flowing Streams tuple attributes through the script,
+synchronizing the tuple flow with the script's input and output,
+using an upstream Gate operator.
+
+The script copies each word on input lines read from STDIN to a separate output line written to STDOUT, 
+prefixing them with word numbers and the number of characters in each word,
+and following them with a separate delimiter output line.
+The operator writes lines of text consumed from input tuples to STDIN,
+and produces output tuples containing words read from STDOUT.
+(This application does not expect the script to write anything to STDERR.
+If something is written to STDERR, it will be logged in the Streams application trace.)
+An upstream Gate operator releases one input tuple at a time to the ShellPipe operator,
+then blocks until a downstream Custom operator receives a delimiter line from the script,
+indicating that it has finished processing the input line.
+The Custom operator copies attributes with matching names and types from each input tuple
+to all of the output tuples it produces.
+This may be what you need when Streams applications and shell commands cannot execute concurrently.
+
+The ShellPipe operator normally executes its command asynchronously from Streams, 
+and the shell buffers the data flowing between them.
+This is good for performance, because it allows Streams and the command to execute concurrently.
+But, it allows the operator to consume multiple input tuples 
+before the script's output from previous tuples is received.
+That is, input and output tuples may get out of sync,
+so the operator may copy attributes from later input tuples to earlier output tuples.
+In this application, 
+the Gate and Custom operators block the Streams flow while the script processes each input tuple,
+until a delimiter line is received from the script.
+
+**Note:**
+When a Streams application waits for a specific output line from a ShellPipe command,
+such as the delimiter line in this application,
+normal shell buffering may cause a deadlock.
+This can happen when the line the Streams application is waiting for 
+is written into a partially-filled shell buffer.
+The shell will not normally send output buffers to Streams until they are full, 
+and a synchronized Stream application like this one will not send more input to the shell 
+until it receives the output that's already in the buffer,
+so the command will not write any more output to the shell, 
+so its buffer will never fill.
+To avoid this deadlock, ensure that the command flushes its output buffer after writing
+the specific output line the application is waiting for.
+In Bash scripts, output lines from the `echo` command are flushed automatically.
+In Perl scripts, you can ensure the output lines are flushed automatically like this:
+
+    use IO::Handle;
+    STDERR->autoflush(1);
+    STDOUT->autoflush(1);
+
+This sample application illustrates one possible solution to the problem of copying attributes
+from input tuples to output tuples when Streams and a shell command cannot execute concurrently.
+The [sample::TestShellPipeCopyAttributes_1to1_paired] 
+and [sample::TestShellPipeCopyAttributes_1toN_queued] applications show other solutions to this problem
+for scripts that can execute concurrently with Streams.
+
+The Perl script used by this sample application can be tested independently on Streams 
+by entering this command at a Linux prompt:
+
+    cd .../samples/SampleShellPipe
+    cat ./data/ozymandias.txt | ./etc/wordCounterWithAutoflush.pl - -----
+
+@param inputFile specifies an input file containing lines of text
+that will be written to a script as its STDIN. 
+The default input file contains a short poem published in 1818 by Percy Bysshe Shelley.
+
+@param shellCommand specifies a shell command that will be excuted by the ShellPipe operator.
+The default command is a Perl script that reads lines of text from STDIN 
+and writes each word as a separate output line to STDOUT, 
+prefixed by an output word number and the number of characters in the word,
+and followed by a separate delimiter output line.
+
+@param tokenDelimiter specifies a character that will be inserted between the numbers
+and the word in STDOUT. The default token delimiter character is a hyphen "-".
+
+@param lineDelimiter specifies a string that will be written as a separate line to STDOUT
+following the words from each input line.
+The default line delimiter string is five hyphen characters "-----".
+
+ */
 composite TestShellPipeSynchronize {
 
     param
     expression<rstring> $inputFile: dataDirectory() + "/ozymandias.txt";
-    expression<rstring> $shellCommand: "./etc/wordCounter_withAutoflush.pl";
+    expression<rstring> $shellCommand: "./etc/wordCounterWithAutoflush.pl";
     expression<rstring> $tokenDelimiter: "-";
     expression<rstring> $lineDelimiter: "-----";
 
@@ -53,6 +125,7 @@ composite TestShellPipeSynchronize {
     () as DebugInputStream = FileSink(InputStream) { param file: "debug.TestShellPipeSynchronize.InputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
 
+    // send one input tuple at a time to the shell command, then wait for an acknowledgement from the command that the input line has been completely processed
     stream<InputType> GatedInputStream = Gate(InputStream ; GateStream) {
     param
         maxUnackedTupleCount: 1;
@@ -60,7 +133,7 @@ composite TestShellPipeSynchronize {
     () as DebugGatedInputStream = FileSink(GatedInputStream) { param file: "debug.TestShellPipeSynchronize.GatedInputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
 
-    // execute a Perl script that copies lines from STDIN to STDOUT, ............................
+    // execute the shell command, writing input attributes to STDIN and reading output attributes from STDOUT
     ( stream<InputType, tuple<rstring stdoutLine>> STDOUTStream ;
       stream<rstring stderrLine> STDERRStream ) = ShellPipe(GatedInputStream) {
     param
@@ -72,7 +145,7 @@ composite TestShellPipeSynchronize {
     () as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeSynchronize.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
         
 
-    // .....................
+    // parse the output lines, and send the line delimiters to the Gate operator, which will send the next input tuple to the script
     ( stream<OutputType> OutputStream ;
       stream<int32 ackCount> GateStream ) = Custom(STDOUTStream) {
     logic 
@@ -84,7 +157,7 @@ composite TestShellPipeSynchronize {
         } else {
             list<rstring> tokens = tokenize(stdoutLine, $tokenDelimiter, true);
             if (size(tokens)!=3) return;
-            assignFrom(outputTuple, STDOUTStream); // .............. 
+            assignFrom(outputTuple, STDOUTStream); 
             outputTuple.outputWordNumber = (int64)tokens[0];
             outputTuple.outputWordLength = (int64)tokens[1];
             outputTuple.outputWord = tokens[2];

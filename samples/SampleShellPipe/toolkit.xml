@@ -15,14 +15,7 @@
     </uriTable>
     <namespace name="sample">
       <compositeOp column="11" line="9" name="TestShellPipeBasic1" potentialMain="true" uriIndex="1"/>
-      <compositeOp column="11" line="9" name="TestShellPipeCopyAttributes_1to1_paired" potentialMain="true" uriIndex="2">
-        <parameter defaultValue="dataDirectory() + &quot;/ozymandias.txt&quot;" metaType="Expression" name="inputFile" optional="true" type="&lt;rstring>"/>
-        <parameter defaultValue="&quot;./etc/lineCounter.pl&quot;" metaType="Expression" name="shellCommand" optional="true" type="&lt;rstring>"/>
-        <parameter defaultValue="&quot;-&quot;" metaType="Expression" name="tokenDelimiter" optional="true" type="&lt;rstring>"/>
-        <type column="5" line="18" name="InputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine" uriIndex="2"/>
-        <type column="5" line="23" name="OutputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine, int64 outputLineNumber, int64 outputLineLength, rstring outputLine" uriIndex="2"/>
-      </compositeOp>
-      <compositeOp column="11" line="43" name="TestShellPipeCopyAttributes_1to1_naive" potentialMain="true" uriIndex="3">
+      <compositeOp column="11" line="61" name="TestShellPipeCopyAttributes_1to1_paired" potentialMain="true" uriIndex="2">
         <parameter defaultValue="dataDirectory() + &quot;/ozymandias.txt&quot;" metaType="Expression" name="inputFile" optional="true" type="&lt;rstring>">
           <description>specifies an input file containing lines of text</description>
         </parameter>
@@ -32,34 +25,71 @@
         <parameter defaultValue="&quot;-&quot;" metaType="Expression" name="tokenDelimiter" optional="true" type="&lt;rstring>">
           <description>specifies a character that will be inserted between the numbers</description>
         </parameter>
-        <type column="5" line="52" name="InputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine" uriIndex="3"/>
-        <type column="5" line="57" name="OutputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine, int64 outputLineNumber, int64 outputLineLength, rstring outputLine" uriIndex="3"/>
+        <type column="5" line="70" name="InputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine" uriIndex="2"/>
+        <type column="5" line="75" name="OutputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine, int64 outputLineNumber, int64 outputLineLength, rstring outputLine" uriIndex="2"/>
       </compositeOp>
-      <compositeOp column="11" line="16" name="TestShellPipeCopyAttributes_1toN_naive" potentialMain="true" uriIndex="4">
-        <parameter defaultValue="dataDirectory() + &quot;/ozymandias.txt&quot;" metaType="Expression" name="inputFile" optional="true" type="&lt;rstring>"/>
-        <parameter defaultValue="&quot;./etc/wordCounter_withoutAutoflush.pl&quot;" metaType="Expression" name="shellCommand" optional="true" type="&lt;rstring>"/>
-        <parameter defaultValue="&quot;-&quot;" metaType="Expression" name="tokenDelimiter" optional="true" type="&lt;rstring>"/>
-        <parameter defaultValue="&quot;-----&quot;" metaType="Expression" name="lineDelimiter" optional="true" type="&lt;rstring>"/>
-        <type column="5" line="26" name="InputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine" uriIndex="4"/>
-        <type column="5" line="31" name="OutputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine, int64 outputWordNumber, int64 outputWordLength, rstring outputWord" uriIndex="4"/>
+      <compositeOp column="11" line="58" name="TestShellPipeCopyAttributes_1to1_naive" potentialMain="true" uriIndex="3">
+        <parameter defaultValue="dataDirectory() + &quot;/ozymandias.txt&quot;" metaType="Expression" name="inputFile" optional="true" type="&lt;rstring>">
+          <description>specifies an input file containing lines of text</description>
+        </parameter>
+        <parameter defaultValue="&quot;./etc/lineCounter.pl&quot;" metaType="Expression" name="shellCommand" optional="true" type="&lt;rstring>">
+          <description>specifies a shell command that will be excuted by the ShellPipe operator.</description>
+        </parameter>
+        <parameter defaultValue="&quot;-&quot;" metaType="Expression" name="tokenDelimiter" optional="true" type="&lt;rstring>">
+          <description>specifies a character that will be inserted between the numbers</description>
+        </parameter>
+        <type column="5" line="67" name="InputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine" uriIndex="3"/>
+        <type column="5" line="72" name="OutputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine, int64 outputLineNumber, int64 outputLineLength, rstring outputLine" uriIndex="3"/>
+      </compositeOp>
+      <compositeOp column="11" line="64" name="TestShellPipeCopyAttributes_1toN_naive" potentialMain="true" uriIndex="4">
+        <parameter defaultValue="dataDirectory() + &quot;/ozymandias.txt&quot;" metaType="Expression" name="inputFile" optional="true" type="&lt;rstring>">
+          <description>specifies an input file containing lines of text</description>
+        </parameter>
+        <parameter defaultValue="&quot;./etc/wordCounter.pl&quot;" metaType="Expression" name="shellCommand" optional="true" type="&lt;rstring>">
+          <description>specifies a shell command that will be excuted by the ShellPipe operator.</description>
+        </parameter>
+        <parameter defaultValue="&quot;-&quot;" metaType="Expression" name="tokenDelimiter" optional="true" type="&lt;rstring>">
+          <description>specifies a character that will be inserted between the numbers</description>
+        </parameter>
+        <parameter defaultValue="&quot;-----&quot;" metaType="Expression" name="lineDelimiter" optional="true" type="&lt;rstring>">
+          <description>specifies a string that will be written as a separate line to STDOUT</description>
+        </parameter>
+        <type column="5" line="74" name="InputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine" uriIndex="4"/>
+        <type column="5" line="79" name="OutputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine, int64 outputWordNumber, int64 outputWordLength, rstring outputWord" uriIndex="4"/>
       </compositeOp>
       <compositeOp column="11" line="9" name="TestShellPipeBadScript" potentialMain="true" uriIndex="5"/>
       <compositeOp column="11" line="9" name="TestShellPipeBasic2" potentialMain="true" uriIndex="6"/>
-      <compositeOp column="11" line="18" name="TestShellPipeCopyAttributes_1toN_queued" potentialMain="true" uriIndex="7">
-        <parameter defaultValue="dataDirectory() + &quot;/ozymandias.txt&quot;" metaType="Expression" name="inputFile" optional="true" type="&lt;rstring>"/>
-        <parameter defaultValue="&quot;./etc/wordCounter_withoutAutoflush.pl&quot;" metaType="Expression" name="shellCommand" optional="true" type="&lt;rstring>"/>
-        <parameter defaultValue="&quot;-&quot;" metaType="Expression" name="tokenDelimiter" optional="true" type="&lt;rstring>"/>
-        <parameter defaultValue="&quot;-----&quot;" metaType="Expression" name="lineDelimiter" optional="true" type="&lt;rstring>"/>
-        <type column="5" line="28" name="InputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine" uriIndex="7"/>
-        <type column="5" line="33" name="OutputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine, int64 outputWordNumber, int64 outputWordLength, rstring outputWord" uriIndex="7"/>
+      <compositeOp column="11" line="69" name="TestShellPipeCopyAttributes_1toN_queued" potentialMain="true" uriIndex="7">
+        <parameter defaultValue="dataDirectory() + &quot;/ozymandias.txt&quot;" metaType="Expression" name="inputFile" optional="true" type="&lt;rstring>">
+          <description>specifies an input file containing lines of text</description>
+        </parameter>
+        <parameter defaultValue="&quot;./etc/wordCounter.pl&quot;" metaType="Expression" name="shellCommand" optional="true" type="&lt;rstring>">
+          <description>specifies a shell command that will be excuted by the ShellPipe operator.</description>
+        </parameter>
+        <parameter defaultValue="&quot;-&quot;" metaType="Expression" name="tokenDelimiter" optional="true" type="&lt;rstring>">
+          <description>specifies a character that will be inserted between the numbers</description>
+        </parameter>
+        <parameter defaultValue="&quot;-----&quot;" metaType="Expression" name="lineDelimiter" optional="true" type="&lt;rstring>">
+          <description>specifies a string that will be written as a separate line to STDOUT</description>
+        </parameter>
+        <type column="5" line="79" name="InputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine" uriIndex="7"/>
+        <type column="5" line="84" name="OutputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine, int64 outputWordNumber, int64 outputWordLength, rstring outputWord" uriIndex="7"/>
       </compositeOp>
-      <compositeOp column="11" line="18" name="TestShellPipeSynchronize" potentialMain="true" uriIndex="8">
-        <parameter defaultValue="dataDirectory() + &quot;/ozymandias.txt&quot;" metaType="Expression" name="inputFile" optional="true" type="&lt;rstring>"/>
-        <parameter defaultValue="&quot;./etc/wordCounter_withAutoflush.pl&quot;" metaType="Expression" name="shellCommand" optional="true" type="&lt;rstring>"/>
-        <parameter defaultValue="&quot;-&quot;" metaType="Expression" name="tokenDelimiter" optional="true" type="&lt;rstring>"/>
-        <parameter defaultValue="&quot;-----&quot;" metaType="Expression" name="lineDelimiter" optional="true" type="&lt;rstring>"/>
-        <type column="5" line="28" name="InputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine" uriIndex="8"/>
-        <type column="5" line="33" name="OutputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine, int64 outputWordNumber, int64 outputWordLength, rstring outputWord" uriIndex="8"/>
+      <compositeOp column="11" line="90" name="TestShellPipeSynchronize" potentialMain="true" uriIndex="8">
+        <parameter defaultValue="dataDirectory() + &quot;/ozymandias.txt&quot;" metaType="Expression" name="inputFile" optional="true" type="&lt;rstring>">
+          <description>specifies an input file containing lines of text</description>
+        </parameter>
+        <parameter defaultValue="&quot;./etc/wordCounterWithAutoflush.pl&quot;" metaType="Expression" name="shellCommand" optional="true" type="&lt;rstring>">
+          <description>specifies a shell command that will be excuted by the ShellPipe operator.</description>
+        </parameter>
+        <parameter defaultValue="&quot;-&quot;" metaType="Expression" name="tokenDelimiter" optional="true" type="&lt;rstring>">
+          <description>specifies a character that will be inserted between the numbers</description>
+        </parameter>
+        <parameter defaultValue="&quot;-----&quot;" metaType="Expression" name="lineDelimiter" optional="true" type="&lt;rstring>">
+          <description>specifies a string that will be written as a separate line to STDOUT</description>
+        </parameter>
+        <type column="5" line="100" name="InputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine" uriIndex="8"/>
+        <type column="5" line="105" name="OutputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine, int64 outputWordNumber, int64 outputWordLength, rstring outputWord" uriIndex="8"/>
       </compositeOp>
     </namespace>
     <dependency>

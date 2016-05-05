@@ -8,25 +8,40 @@ use com.ibm.streamsx.shell::*;
 
 /**
 
-This sample application executes a Perl script with the ShellPipe operator. 
-Lines of text consumed from attributes in input tuples are written to the script via STDIN,
-and lines of text written to STDOUT by the script are produced as attributes in output tuples.
-The ShellPipe operator copies other output attributes from the most recently consumed input tuple.
+This sample application executes a Perl script with the ShellPipe operator,
+flowing Streams tuples through the script asynchronously,
+naively copying input attributes to output tuples.
+
+The script copies lines of text from STDIN to STDOUT, 
+prefixing them with line numbers and the number of characters on each line.
+The operator writes lines of text consumed from input tuples to STDIN,
+and produces output tuples containing lines of text read from STDOUT.
+(This application does not expect the script to write anything to STDERR.
+If something is written to STDERR, it will be logged in the Streams application trace.)
+The operator copies other output attributes from the most recently consumed input tuple.
 This is probably not what you want.
 
-The ShellPipe operator executes the script asynchronously from Streams, and the shell buffers the data flowing between them.
-This is good for performance, because it allows Streams and the script to execute concurrently.
-But, it allows the operator to consume more input tuples before the script's output from previous tuples is received.
+The ShellPipe operator executes its command asynchronously from Streams, 
+and the shell buffers the data flowing between them.
+This is good for performance, because it allows Streams and the command to execute concurrently.
+But, it allows the operator to consume multiple input tuples 
+before the script's output from previous tuples is received.
 That is, input and output tuples may get out of sync.
-So, the operator may copy attributes from later input tuples to earlier output tuples.
+In this application,
+the operator may copy attributes from later input tuples to earlier output tuples.
 
 This sample application illustrates the problem of copying attributes directly
-from input tuples to output tuples when they are out of sync due to buffering and 
+from input tuples to output tuples that are out of sync due to buffering and 
 asynchronous execution in a shell.
- 
-The `TestShellPipeCopyAttributes_1to1_paired.spl` application shows a solution to this problem
+The [sample::TestShellPipeCopyAttributes_1to1_paired] application shows a solution to this problem
 for scripts that write one output line for each input line, 
 that is, for scripts with a "1 to 1" ratio of input to output lines.
+
+The Perl script used by this sample application can be tested independently on Streams 
+by entering this command at a Linux prompt:
+
+    cd .../samples/SampleShellPipe
+    cat ./data/ozymandias.txt | ./etc/lineCounter.pl - 
 
 @param inputFile specifies an input file containing lines of text
 that will be written to a script as its STDIN. 
