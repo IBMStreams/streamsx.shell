@@ -37,7 +37,7 @@
 
       <dd class="dd">
 <ul class="sl simple">
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$sample$TestShellSourceBasic1.html#spldoc_compilationunit__composite_operator__TestShellSourceBasic1">TestShellSourceBasic1</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$sample$TestShellSourceBasic1.html#spldoc_compilationunit__composite_operator__TestShellSourceBasic1">TestShellSourceBasic1</a></strong>: This sample application executes a shell command with a variety of ShellSource operators illustrating how to specify the operator's required and optional parameters, and writes STDOUT from the command into files.
 </li>
 
 </ul>
@@ -58,6 +58,23 @@
 </div>
 
 <div class="section">
+
+<p class="p">This sample application executes a shell command with a variety of ShellSource operators illustrating how to specify the operator's required and optional parameters, and writes STDOUT from the command into files.
+</p>
+
+<p class="p">The command copies lines from a text file to the ShellSource operator's output tuples.
+</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">Parameters</h2>
+
+<ul class="sl simple">
+<li class="sli"><strong class="ph b">command</strong>: specifies the shell command that will be excuted by the ShellSource operator. The default command copies lines from a text file to STDOUT. The text file contains a short poem published in 1818 by Percy Bysshe Shelley. 
+</li>
+
+</ul>
+
 </div>
 
 <div class="section">
@@ -71,7 +88,7 @@
 </div>
 
 <div class="section splgraph">
-  <embed class="image" src="../../image/tk$SampleShellSource/op$sample$TestShellSourceBasic1.svg" width="232" height="289"/>
+  <embed class="image" src="../../image/tk$SampleShellSource/op$sample$TestShellSourceBasic1.svg" width="232" height="287"/>
 </div>
 
 <div class="section"><h2 class="title sectiontitle splhead-2">SPL Source Code</h2>
@@ -84,20 +101,23 @@
 
  composite TestShellSourceBasic1 {
  
+     param
+     expression&lt;rstring&gt; $command: "cat " + dataDirectory() + "/ozymandias.txt";
+ 
      graph
  
  
      // execute a shell command that writes text lines to STDOUT and produce tuples containing them
      stream&lt;rstring line&gt; A_STDOUTStream = ShellSource() {
      param
-         command: "cat " + dataDirectory() + "/ozymandias.txt"; }
+         command: $command; }
      () as DebugA_STDOUTStream = FileSink(A_STDOUTStream) { param file: "debug.TestShellSourceBasic1.A_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  
  
      // execute a shell command that writes text lines to STDOUT and produce tuples containing them
      stream&lt;rstring line&gt; B_STDOUTStream = ShellSource() {
      param
-         command: "cat " + dataDirectory() + "/ozymandias.txt";
+         command: $command;
          stdoutAttribute: "line"; }
      () as DebugB_STDOUTStream = FileSink(B_STDOUTStream) { param file: "debug.TestShellSourceBasic1.B_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  
@@ -105,7 +125,7 @@
      // execute a shell command that writes text lines to STDOUT and produce tuples containing the text plus their line numbers and character counts
      stream&lt;uint64 lineNumber, int32 lineLength, rstring line&gt; C_STDOUTStream as Out = ShellSource() {
      param
-         command: "cat " + dataDirectory() + "/ozymandias.txt";
+         command: $command;
      output Out:
          lineNumber = lineCounters()[1],
          lineLength = length(stdoutLine()),
@@ -116,7 +136,7 @@
      // after a short delay, execute a shell command that writes text lines to STDOUT and produce tuples containing them
      stream&lt;rstring line&gt; D_STDOUTStream = ShellSource() {
      param
-         command: "cat " + dataDirectory() + "/ozymandias.txt";
+         command: $command;
          initDelay: 1.5; }
      () as DebugD_STDOUTStream = FileSink(D_STDOUTStream) { param file: "debug.TestShellSourceBasic1.D_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  
@@ -124,7 +144,7 @@
      // repeatedly execute a shell command that writes text lines to STDOUT and produce tuples containing them
      stream&lt;rstring line&gt; E_STDOUTStream = ShellSource() {
      param
-         command: "cat " + dataDirectory() + "/ozymandias.txt";
+         command: $command;
          iterationCount: 3u;
          iterationInterval: 3.0; }
      () as DebugE_STDOUTStream = FileSink(E_STDOUTStream) { param file: "debug.TestShellSourceBasic1.E_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
