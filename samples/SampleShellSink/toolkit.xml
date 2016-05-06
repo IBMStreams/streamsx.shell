@@ -8,8 +8,19 @@
       <uri index="1" value="sample/TestShellSinkBasic.spl"/>
     </uriTable>
     <namespace name="sample">
-      <compositeOp column="11" line="9" name="TestShellSinkBasic" potentialMain="true" uriIndex="1"/>
-      <compositeOp column="11" line="9" name="TestShellSinkBadScript" potentialMain="true" uriIndex="2"/>
+      <compositeOp column="11" line="36" name="TestShellSinkBasic" potentialMain="true" uriIndex="1">
+        <parameter defaultValue="dataDirectory() + &quot;/ozymandias.txt&quot;" metaType="Expression" name="inputFile" optional="true" type="&lt;rstring>">
+          <description>specifies an input file containing lines of text</description>
+        </parameter>
+      </compositeOp>
+      <compositeOp column="11" line="27" name="TestShellSinkBadScript" potentialMain="true" uriIndex="2">
+        <parameter defaultValue="dataDirectory() + &quot;/ozymandias.txt&quot;" metaType="Expression" name="inputFile" optional="true" type="&lt;rstring>">
+          <description>specifies an input file containing lines of text</description>
+        </parameter>
+        <parameter defaultValue="&quot;./etc/badscript.pl&quot;" metaType="Expression" name="shellCommand" optional="true" type="&lt;rstring>">
+          <description>specifies the shell command that will be excuted by the ShellPipe operator.</description>
+        </parameter>
+      </compositeOp>
     </namespace>
     <dependency>
       <common:name>com.ibm.streamsx.shell</common:name>

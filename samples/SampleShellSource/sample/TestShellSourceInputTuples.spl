@@ -5,7 +5,21 @@ namespace sample;
 
 use com.ibm.streamsx.shell::*;
 
+/**
+
+This sample application ingests valid and invalid shell commands from a text file into tuples containing additional attributes,
+executes the commands with a variety of ShellSource operators that illustrate how to specify the operator's optional parameters,
+and writes STDOUT, STDERR, and exit status from each command into files.
+
+@param commandFile specifies an input file containing shell commands
+that will be executed by ShellSource operators.
+The default file contains both valid and invalid commands.
+
+ */
 composite TestShellSourceInputTuples {
+
+    param
+    expression<rstring> $commandFile: dataDirectory() + "/commands.txt";
 
     type
 
@@ -27,7 +41,7 @@ composite TestShellSourceInputTuples {
     stream<CommandType> CommandStream as Out = FileSource() {
     logic state: { mutable int32 counter = 0; }
     param
-        file: dataDirectory() + "/commands.txt";
+        file: $commandFile;
         format: line;
     output Out:
         commandTimestamp = getTimestampInSecs(),

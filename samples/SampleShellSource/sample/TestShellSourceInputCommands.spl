@@ -5,7 +5,21 @@ namespace sample;
 
 use com.ibm.streamsx.shell::*;
 
+/**
+
+This sample application ingests valid and invalid shell commands from a text file,
+executes the commands with ShellSource operators that illustrate how to specify the operator's optional parameters,
+and writes STDOUT, STDERR, and exit status from each command into files.
+
+@param commandFile specifies an input file containing shell commands
+that will be executed by ShellSource operators.
+The default file contains both valid and invalid commands.
+
+ */
 composite TestShellSourceInputCommands {
+
+    param
+    expression<rstring> $commandFile: dataDirectory() + "/commands.txt";
 
     type StatusType =
         rstring command,
@@ -19,7 +33,7 @@ composite TestShellSourceInputCommands {
     // create a stream of shell commands for the ShellSource operators below to consume
     stream<rstring command> CommandStream = FileSource() {
     param
-        file: dataDirectory() + "/commands.txt";
+        file: $commandFile;
         format: line; }
     () as DebugCommandStream = FileSink(CommandStream) { param file: "debug.TestShellSourceInputCommands.CommandStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 

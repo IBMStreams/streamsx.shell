@@ -37,7 +37,7 @@
 
       <dd class="dd">
 <ul class="sl simple">
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$sample$TestShellPipeCopyAttributes_1toN_queued.html#spldoc_compilationunit__composite_operator__TestShellPipeCopyAttributes_1toN_queued">TestShellPipeCopyAttributes_1toN_queued</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$sample$TestShellPipeCopyAttributes_1toN_queued.html#spldoc_compilationunit__composite_operator__TestShellPipeCopyAttributes_1toN_queued">TestShellPipeCopyAttributes_1toN_queued</a></strong>: This sample application executes a Perl script with the ShellPipe operator, flowing Streams tuples through the script asynchronously, then matching the ShellPipe operator's output tuples with the input tuple that caused them, using a downstream Custom operator.
 </li>
 
 </ul>
@@ -57,19 +57,47 @@
   
 </div>
 
+<div class="section">
+
+<p class="p">This sample application executes a Perl script with the ShellPipe operator, flowing Streams tuples through the script asynchronously, then matching the ShellPipe operator's output tuples with the input tuple that caused them, using a downstream Custom operator.
+</p>
+
+<p class="p">The script copies each word on input lines read from STDIN to a separate output line written to STDOUT,  prefixing them with word numbers and the number of characters in each word, and following them with a separate delimiter output line. The operator writes lines of text consumed from input tuples to STDIN, and produces output tuples containing words read from STDOUT. (This application does not expect the script to write anything to STDERR. If something is written to STDERR, it will be logged in the Streams application trace.) A downstream Custom operator enqueues input tuples and matches output tuples to them, based on the delimiter output lines, and copies attributes with matching names and types. This is probably what you want for scripts that write multiple output lines for each input line,  that is, for scripts with a "1 to N" ratio of input and output lines.
+</p>
+
+<p class="p">The ShellPipe operator executes its command asynchronously from Streams,  and the shell buffers the data flowing between them. This is good for performance, because it allows Streams and the command to execute concurrently. But, it allows the operator to consume multiple input tuples  before the script's output from previous tuples is received. That is, input and output tuples may get out of sync, so it should not be used to copy attributes from input tuples to output tuples. In this application,  the Custom operator copies attributes into output tuples from the matching input tuple.
+</p>
+
+<p class="p">This sample application illustrates one possible solution to the problem of copying attributes from input tuples to output tuples that are out of sync due to buffering and  asynchronous execution in a shell. The <a class="xref" href="spl$sample$TestShellPipeCopyAttributes_1to1_paired.html#spldoc_compilationunit__composite_operator__TestShellPipeCopyAttributes_1to1_paired">sample::TestShellPipeCopyAttributes_1to1_paired</a> application shows another solution to this problem for scripts that write one output line for each input line.
+</p>
+
+<p class="p">Note: The Perl script used by this sample application can be tested independently of Streams  by entering these commands at a Linux prompt:
+</p>
+
+<div class="p">
+<pre class="pre codeblock">
+cd .../samples/SampleShellPipe
+cat ./data/ozymandias.txt | ./etc/wordCounter.pl - -----
+</pre>
+
+
+</div>
+
+</div>
+
 <div class="section"><h2 class="title sectiontitle">Parameters</h2>
 
 <ul class="sl simple">
-<li class="sli"><strong class="ph b">inputFile</strong>
+<li class="sli"><strong class="ph b">inputFile</strong>: specifies an input file containing lines of text that will be written to a script as its STDIN.  The default input file contains a short poem published in 1818 by Percy Bysshe Shelley. 
 </li>
 
-<li class="sli"><strong class="ph b">shellCommand</strong>
+<li class="sli"><strong class="ph b">shellCommand</strong>: specifies a shell command that will be excuted by the ShellPipe operator. The default command is a Perl script that reads lines of text from STDIN  and writes each word as a separate output line to STDOUT,  prefixed by an output word number and the number of characters in the word, and followed by a separate delimiter output line. 
 </li>
 
-<li class="sli"><strong class="ph b">tokenDelimiter</strong>
+<li class="sli"><strong class="ph b">tokenDelimiter</strong>: specifies a character that will be inserted between the numbers and the word in STDOUT. The default token delimiter character is a hyphen "-". 
 </li>
 
-<li class="sli"><strong class="ph b">lineDelimiter</strong>
+<li class="sli"><strong class="ph b">lineDelimiter</strong>: specifies a string that will be written as a separate line to STDOUT following the words from each input line. The default line delimiter string is five hyphen characters "-----". 
 </li>
 
 </ul>
@@ -87,7 +115,7 @@
 </div>
 
 <div class="section splgraph">
-  <embed class="image" src="../../image/tk$SampleShellPipe/op$sample$TestShellPipeCopyAttributes_1toN_queued.svg" width="452" height="245"/>
+  <embed class="image" src="../../image/tk$SampleShellPipe/op$sample$TestShellPipeCopyAttributes_1toN_queued.svg" width="447" height="181"/>
 </div>
 
 <div class="section"><h2 class="title sectiontitle splhead-2">SPL Source Code</h2>
@@ -102,7 +130,7 @@
  
      param
      expression&lt;rstring&gt; $inputFile: dataDirectory() + "/ozymandias.txt";
-     expression&lt;rstring&gt; $shellCommand: "./etc/wordCounter_withoutAutoflush.pl";
+     expression&lt;rstring&gt; $shellCommand: "./etc/wordCounter.pl";
      expression&lt;rstring&gt; $tokenDelimiter: "-";
      expression&lt;rstring&gt; $lineDelimiter: "-----";
  
@@ -136,7 +164,7 @@
      () as DebugInputStream = FileSink(InputStream) { param file: "debug.TestShellPipeCopyAttributes_1toN_queued.InputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  
  
-     // execute a Perl script that copies lines from STDIN to STDOUT, and copy input attributes to output attributes naively
+     // execute the shell command, writing input attributes to STDIN and reading output attributes from STDOUT
      ( stream&lt;rstring stdoutLine&gt; STDOUTStream ;
        stream&lt;rstring stderrLine&gt; STDERRStream ) = ShellPipe(InputStream) {
      param
@@ -144,11 +172,11 @@
          stdinAttribute: inputLine;
          stdoutAttribute: "stdoutLine";
          stderrAttribute: "stderrLine"; }
-     () as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeCopyAttributes_1toN_queued.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
-     () as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeCopyAttributes_1toN_queued.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+     //() as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeCopyAttributes_1toN_queued.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+     //() as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeCopyAttributes_1toN_queued.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
          
  
-     // parse the lines written to STDOUT by the command, and explicitly copy input attributes with matching name and type from corresponding input tuple
+     // enqueue input tuples and match output tuples to them, based on delimiter output lines, and then parse the output linesa
      stream&lt;OutputType&gt; OutputStream = Custom(InputStream ; STDOUTStream) {
      logic 
      state: { 
@@ -162,7 +190,7 @@
          } else {
              list&lt;rstring&gt; tokens = tokenize(stdoutLine, $tokenDelimiter, true);
              if (size(tokens)!=3) return;
-             assignFrom(outputTuple, inputQueue[0]); // .............. explicitly copy input attributes with matching name and type from corresponding input tuple
+             assignFrom(outputTuple, inputQueue[0]);
              outputTuple.outputWordNumber = (int64)tokens[0];
              outputTuple.outputWordLength = (int64)tokens[1];
              outputTuple.outputWord = tokens[2];

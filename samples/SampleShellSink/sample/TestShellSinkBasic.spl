@@ -6,50 +6,80 @@ namespace sample;
 
 use com.ibm.streamsx.shell::*;
 
+/**
+
+This sample application executes a variety of scripts with the ShellSink operator, 
+flowing text ingested from an input file through them as STDIN.
+
+The scripts save lines of text read from STDIN in files specified as an argument.
+This application does not expect the scripts to write anything to STDOUT or STDERR.
+If something is written to STDOUT or STDERR, it will be discarded.
+
+This application illustrates how to execute Bash and Perl scripts,
+either stored in files or coded directly in the ShellPipe operator specification.
+
+The scripts can be tested independently of Streams by entering these commands at a Linux prompt:
+
+    cd .../samples/SampleShellSink
+    cat ./data/ozymandias.txt | ./etc/savelines.sh
+
+or 
+
+    cd .../samples/SampleShellSink
+    cat ./data/ozymandias.txt | ./etc/savelines.pl
+
+@param inputFile specifies an input file containing lines of text
+that will be written to a script as its STDIN. 
+The default input file contains a short poem published in 1818 by Percy Bysshe Shelley.
+
+ */
 composite TestShellSinkBasic {
+
+    param
+    expression<rstring> $inputFile: dataDirectory() + "/ozymandias.txt";
 
     graph
 
 
     // create a stream of text lines for the ShellSink operators below to consume
-    stream<rstring textLine> TextStream = FileSource() {
+    stream<rstring inputLine> InputStream = FileSource() {
     param
-        file: dataDirectory() + "/ozymandias.txt";
+        file: $inputFile;
         format: line; }
-    () as DebugTextStream = FileSink(TextStream) { param file: "debug.TestShellSinkBasic.TextStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    () as DebugInputStream = FileSink(InputStream) { param file: "debug.TestShellSinkBasic.InputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
 
     // execute a Bash script from a file that consumes STDIN and appends lines to another file
-    () as A_STDOUTSink = ShellSink(TextStream) {
+    () as A_Sink = ShellSink(InputStream) {
     param
-        command: getApplicationDir() + "/etc/savelines.sh " + dataDirectory() + "/debug.TestShellSinkBasic.A_STDOUTStream.out"; }
+        command: "./etc/savelines.sh " + dataDirectory() + "/debug.TestShellSinkBasic.A_STDOUTStream.out"; }
 
 
     // execute a Bash script from a file that consumes STDIN and appends lines to another file
-    () as B_STDOUTSink = ShellSink(TextStream) {
+    () as B_Sink = ShellSink(InputStream) {
     param
-        stdinAttribute: textLine;
-        command: getApplicationDir() + "/etc/savelines.sh " + dataDirectory() + "/debug.TestShellSinkBasic.B_STDOUTStream.out"; }
+        stdinAttribute: inputLine;
+        command: "./etc/savelines.sh " + dataDirectory() + "/debug.TestShellSinkBasic.B_STDOUTStream.out"; }
 
 
     // execute a Perl script from a file that consumes STDIN and appends lines to another file
-    () as C_STDOUTSink = ShellSink(TextStream) {
+    () as C_Sink = ShellSink(InputStream) {
     param
-        stdinAttribute: textLine;
-        command: getApplicationDir() + "/etc/savelines.pl " + dataDirectory() + "/debug.TestShellSinkBasic.C_STDOUTStream.out"; }
+        stdinAttribute: inputLine;
+        command: "./etc/savelines.pl " + dataDirectory() + "/debug.TestShellSinkBasic.C_STDOUTStream.out"; }
 
 
     // execute an inline Bash script that consumes STDIN and appends lines to a file
-    () as D_STDOUTSink = ShellSink(TextStream) {
+    () as D_Sink = ShellSink(InputStream) {
     param
-        stdinAttribute: textLine;
+        stdinAttribute: inputLine;
         command: "bash -c \"count=0; while read line ; do echo \\$count \\${#line} \\$line >>" + dataDirectory() + "/debug.TestShellSinkBasic.D_STDOUTStream.out" + "; (( count += 1 )) ; done\""; }
 
 
     // execute an inline Perl script that consumes STDIN and appends lines to a file
-    () as E_STDOUTSink = ShellSink(TextStream) {
+    () as E_Sink = ShellSink(InputStream) {
     param
-        stdinAttribute: textLine;
+        stdinAttribute: inputLine;
         command: "perl -n -e \"BEGIN { open FILE, '>>', \\\"" + dataDirectory() + "/debug.TestShellSinkBasic.E_STDOUTStream.out\\\"; } print FILE \\$count++ . ' ' . length . ' ' . \\$_\""; }
 
 }

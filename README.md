@@ -1,4 +1,4 @@
-# streamsx.shell
+# streamsx.shell 
 
 The [Shell toolkit for IBM Streams](http://ibmstreams.github.io/streamsx.shell/) enables SPL applications to execute Linux shell commands and pipelines as Streams operators: 
 
