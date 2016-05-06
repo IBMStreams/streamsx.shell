@@ -6,29 +6,51 @@ namespace sample;
 
 use com.ibm.streamsx.shell::*;
 
+/**
+
+This sample application executes a Perl script containing a syntax error with the ShellSink operator,
+and logs the error messages from the Perl interpreter in the Streams application trace.
+
+The script can be tested independently of Streams by entering these commands at a Linux prompt:
+
+    cd .../samples/SampleShellSink
+    cat ./data/ozymandias.txt | ./etc/badscript.pl
+
+@param inputFile specifies an input file containing lines of text
+that will be written to a script as its STDIN. 
+The default input file contains a short poem published in 1818 by Percy Bysshe Shelley.
+
+@param shellCommand specifies the shell command that will be excuted by the ShellPipe operator.
+The default command is a Perl script that contains a syntax error.
+
+*/
 composite TestShellSinkBadScript {
+
+    param
+    expression<rstring> $inputFile: dataDirectory() + "/ozymandias.txt";
+    expression<rstring> $shellCommand: "./etc/badscript.pl";
 
     graph
 
 
     // create a stream of text lines for the ShellSink operator below to consume
-    stream<rstring textLine> TextStream = FileSource() {
+    stream<rstring inputLine> InputStream = FileSource() {
     param
-        file: dataDirectory() + "/ozymandias.txt";
+        file: $inputFile;
         format: line; }
-    () as DebugTextStream = FileSink(TextStream) { param file: "debug.TestShellSinkBadScript.TextStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    () as DebugInputStream = FileSink(InputStream) { param file: "debug.TestShellSinkBadScript.InputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
 
     // try to execute a Perl script containing a syntax error
-    stream<rstring stderrLine> STDERRStream = ShellSink(TextStream) {
+    stream<rstring stderrLine> STDERRStream = ShellSink(InputStream) {
     param
-        command: "./etc/badscript.pl";  }
+        command: $shellCommand;  }
     () as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellSinkBadScript.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
 
     // log STDERR lines 
     () as LogSTDERRStream = Custom(STDERRStream as In) {
     logic onTuple In: {
-          appTrc(Trace.info, "STDERR: " + stderrLine); } }
+          appTrc(Trace.info, "STDERR from command '" + $shellCommand + "': " + stderrLine); } }
 
 }

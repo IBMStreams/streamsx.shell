@@ -63,8 +63,8 @@ The [sample::TestShellPipeCopyAttributes_1to1_paired]
 and [sample::TestShellPipeCopyAttributes_1toN_queued] applications show other solutions to this problem
 for scripts that can execute concurrently with Streams.
 
-The Perl script used by this sample application can be tested independently on Streams 
-by entering this command at a Linux prompt:
+The Perl script used by this sample application can be tested independently of Streams 
+by entering these commands at a Linux prompt:
 
     cd .../samples/SampleShellPipe
     cat ./data/ozymandias.txt | ./etc/wordCounterWithAutoflush.pl - -----
@@ -130,7 +130,7 @@ composite TestShellPipeSynchronize {
     param
         maxUnackedTupleCount: 1;
         numTuplesToAck: ackCount; }
-    () as DebugGatedInputStream = FileSink(GatedInputStream) { param file: "debug.TestShellPipeSynchronize.GatedInputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    //() as DebugGatedInputStream = FileSink(GatedInputStream) { param file: "debug.TestShellPipeSynchronize.GatedInputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
 
     // execute the shell command, writing input attributes to STDIN and reading output attributes from STDOUT
@@ -141,8 +141,8 @@ composite TestShellPipeSynchronize {
         stdinAttribute: inputLine;
         stdoutAttribute: "stdoutLine";
         stderrAttribute: "stderrLine"; }
-    () as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeSynchronize.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
-    () as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeSynchronize.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    //() as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeSynchronize.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    //() as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeSynchronize.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
         
 
     // parse the output lines, and send the line delimiters to the Gate operator, which will send the next input tuple to the script

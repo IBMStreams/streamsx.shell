@@ -42,8 +42,8 @@ The [sample::TestShellPipeCopyAttributes_1to1_paired] application shows another 
 for scripts that write one output line for each input line.
 
 Note:
-The Perl script used by this sample application can be tested independently on Streams 
-by entering this command at a Linux prompt:
+The Perl script used by this sample application can be tested independently of Streams 
+by entering these commands at a Linux prompt:
 
     cd .../samples/SampleShellPipe
     cat ./data/ozymandias.txt | ./etc/wordCounter.pl - -----
@@ -112,11 +112,11 @@ composite TestShellPipeCopyAttributes_1toN_queued {
         stdinAttribute: inputLine;
         stdoutAttribute: "stdoutLine";
         stderrAttribute: "stderrLine"; }
-    () as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeCopyAttributes_1toN_queued.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
-    () as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeCopyAttributes_1toN_queued.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    //() as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeCopyAttributes_1toN_queued.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    //() as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeCopyAttributes_1toN_queued.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
         
 
-    // enqueue input tuples and match output tuples to them, based on delimiter output lines, and then parse the output lines
+    // enqueue input tuples and match output tuples to them, based on delimiter output lines, and then parse the output linesa
     stream<OutputType> OutputStream = Custom(InputStream ; STDOUTStream) {
     logic 
     state: { 

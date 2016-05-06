@@ -1,4 +1,4 @@
-#Thu May 05 13:31:05 EDT 2016
+#Fri May 06 10:09:26 EDT 2016
 copytosourcelist=
 hreftargetslist=dita/tk$SampleShellPipe/tk$SampleShellPipe.xml,dita/tk$SampleShellPipe/spl$sample$TestShellPipeCopyAttributes_1to1_naive.xml,dita/tk$SampleShellPipe/ns$sample.xml,dita/tk$SampleShellPipe/spl$sample$TestShellPipeSynchronize.xml,dita/tk$SampleShellPipe/spl$sample$TestShellPipeBadScript.xml,dita/tk$SampleShellPipe/spl$sample$TestShellPipeCopyAttributes_1toN_naive.xml,dita/toolkits/ix$Namespace.xml,dita/toolkits/ix$Operator.xml,dita/tk$SampleShellPipe/ix$Namespace.xml,dita/tk$SampleShellPipe/spl$sample$TestShellPipeCopyAttributes_1to1_paired.xml,dita/toolkits/toolkits.xml,dita/tk$SampleShellPipe/spl$sample$TestShellPipeCopyAttributes_1toN_queued.xml,dita/tk$SampleShellPipe/spl$sample$TestShellPipeBasic2.xml,dita/tk$SampleShellPipe/ix$Operator.xml,dita/tk$SampleShellPipe/spl$sample$TestShellPipeBasic1.xml
 fullditatopicfile=fullditatopic.list

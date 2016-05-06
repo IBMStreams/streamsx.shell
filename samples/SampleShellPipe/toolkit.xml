@@ -14,7 +14,11 @@
       <uri index="3" value="sample/TestShellPipeCopyAttributes_1to1_naive.spl"/>
     </uriTable>
     <namespace name="sample">
-      <compositeOp column="11" line="9" name="TestShellPipeBasic1" potentialMain="true" uriIndex="1"/>
+      <compositeOp column="11" line="42" name="TestShellPipeBasic1" potentialMain="true" uriIndex="1">
+        <parameter defaultValue="dataDirectory() + &quot;/ozymandias.txt&quot;" metaType="Expression" name="inputFile" optional="true" type="&lt;rstring>">
+          <description>specifies an input file containing lines of text</description>
+        </parameter>
+      </compositeOp>
       <compositeOp column="11" line="61" name="TestShellPipeCopyAttributes_1to1_paired" potentialMain="true" uriIndex="2">
         <parameter defaultValue="dataDirectory() + &quot;/ozymandias.txt&quot;" metaType="Expression" name="inputFile" optional="true" type="&lt;rstring>">
           <description>specifies an input file containing lines of text</description>
@@ -57,8 +61,19 @@
         <type column="5" line="74" name="InputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine" uriIndex="4"/>
         <type column="5" line="79" name="OutputType" type="float64 inputTimestamp, int64 inputLineNumber, rstring inputLine, int64 outputWordNumber, int64 outputWordLength, rstring outputWord" uriIndex="4"/>
       </compositeOp>
-      <compositeOp column="11" line="9" name="TestShellPipeBadScript" potentialMain="true" uriIndex="5"/>
-      <compositeOp column="11" line="9" name="TestShellPipeBasic2" potentialMain="true" uriIndex="6"/>
+      <compositeOp column="11" line="27" name="TestShellPipeBadScript" potentialMain="true" uriIndex="5">
+        <parameter defaultValue="dataDirectory() + &quot;/ozymandias.txt&quot;" metaType="Expression" name="inputFile" optional="true" type="&lt;rstring>">
+          <description>specifies an input file containing lines of text</description>
+        </parameter>
+        <parameter defaultValue="&quot;./etc/badscript.pl&quot;" metaType="Expression" name="shellCommand" optional="true" type="&lt;rstring>">
+          <description>specifies the shell command that will be excuted by the ShellPipe operator.</description>
+        </parameter>
+      </compositeOp>
+      <compositeOp column="11" line="40" name="TestShellPipeBasic2" potentialMain="true" uriIndex="6">
+        <parameter defaultValue="dataDirectory() + &quot;/ozymandias.txt&quot;" metaType="Expression" name="inputFile" optional="true" type="&lt;rstring>">
+          <description>specifies an input file containing lines of text</description>
+        </parameter>
+      </compositeOp>
       <compositeOp column="11" line="69" name="TestShellPipeCopyAttributes_1toN_queued" potentialMain="true" uriIndex="7">
         <parameter defaultValue="dataDirectory() + &quot;/ozymandias.txt&quot;" metaType="Expression" name="inputFile" optional="true" type="&lt;rstring>">
           <description>specifies an input file containing lines of text</description>

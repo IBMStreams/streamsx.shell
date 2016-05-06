@@ -40,8 +40,8 @@ asynchronous execution in a shell.
 The [sample::TestShellPipeCopyAttributes_1toN_queued] application shows another solution to this problem
 for scripts that write more than one output line for each input line.
 
-The Perl script used by this sample application can be tested independently on Streams 
-by entering this command at a Linux prompt:
+The Perl script used by this sample application can be tested independently of Streams 
+by entering these commands at a Linux prompt:
 
     cd .../samples/SampleShellPipe
     cat ./data/ozymandias.txt | ./etc/lineCounter.pl - 
@@ -103,13 +103,13 @@ composite TestShellPipeCopyAttributes_1to1_paired {
         stdinAttribute: inputLine;
         stdoutAttribute: "stdoutLine";
         stderrAttribute: "stderrLine"; }
-    () as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_paired.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
-    () as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_paired.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    //() as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_paired.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    //() as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_paired.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
 
     // pair each tuple consumed by the ShellPipe operator with the tuple it produced, and copy matching output attributes from the input tuple
     stream<InputType, tuple<rstring stdoutLine>> PairedSTDOUTStream = Barrier(InputStream ; STDOUTStream) {}
-    () as DebugPairedSTDOUTStream = FileSink(PairedSTDOUTStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_paired.PairedSTDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    //() as DebugPairedSTDOUTStream = FileSink(PairedSTDOUTStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_paired.PairedSTDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
 
     // parse the lines written to STDOUT by the command, and copy matching attributes 

@@ -71,7 +71,7 @@
 <p class="p">This sample application illustrates the problem of copying attributes directly from input tuples to output tuples that are out of sync due to buffering and  asynchronous execution in a shell. The <a class="xref" href="spl$sample$TestShellPipeCopyAttributes_1to1_paired.html#spldoc_compilationunit__composite_operator__TestShellPipeCopyAttributes_1to1_paired">sample::TestShellPipeCopyAttributes_1to1_paired</a> application shows a solution to this problem for scripts that write one output line for each input line,  that is, for scripts with a "1 to 1" ratio of input to output lines.
 </p>
 
-<p class="p">The Perl script used by this sample application can be tested independently on Streams  by entering this command at a Linux prompt:
+<p class="p">The Perl script used by this sample application can be tested independently of Streams  by entering these commands at a Linux prompt:
 </p>
 
 <div class="p">
@@ -112,7 +112,7 @@ cat ./data/ozymandias.txt | ./etc/lineCounter.pl -
 </div>
 
 <div class="section splgraph">
-  <embed class="image" src="../../image/tk$SampleShellPipe/op$sample$TestShellPipeCopyAttributes_1to1_naive.svg" width="452" height="198"/>
+  <embed class="image" src="../../image/tk$SampleShellPipe/op$sample$TestShellPipeCopyAttributes_1to1_naive.svg" width="447" height="175"/>
 </div>
 
 <div class="section"><h2 class="title sectiontitle splhead-2">SPL Source Code</h2>
@@ -167,7 +167,7 @@ cat ./data/ozymandias.txt | ./etc/lineCounter.pl -
          stdinAttribute: inputLine;
          stdoutAttribute: "stdoutLine";
          stderrAttribute: "stderrLine"; }
-     () as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_naive.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+     //() as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_naive.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  
  
      // parse the numbers and text written to STDOUT by the command, and copy other output attributes from the input tuple

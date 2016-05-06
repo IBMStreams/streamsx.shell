@@ -5,6 +5,12 @@ namespace sample;
 
 use com.ibm.streamsx.shell::*;
 
+/**
+
+This sample application executes a variety of shell command pipelines coded directly in ShellSource operators,
+and writes STDOUT and STDERR from the commands into files.
+
+ */
 composite TestShellSourceBasic2 {
 
     graph

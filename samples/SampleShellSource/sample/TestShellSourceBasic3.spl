@@ -5,6 +5,12 @@ namespace sample;
 
 use com.ibm.streamsx.shell::*;
 
+/**
+
+This sample application tries to execute a non-existant shell command with a ShellSource operator,
+and writes the shell's error code into a file.
+
+ */
 composite TestShellSourceBasic3 {
 
 	type ShellStatus =

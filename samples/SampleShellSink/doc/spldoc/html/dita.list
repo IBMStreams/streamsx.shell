@@ -1,4 +1,4 @@
-#Mon May 02 10:11:02 EDT 2016
+#Fri May 06 10:09:17 EDT 2016
 copytosourcelist=
 hreftargetslist=dita/tk$SampleShellSink/ns$sample.xml,dita/tk$SampleShellSink/spl$sample$TestShellSinkBasic.xml,dita/toolkits/ix$Namespace.xml,dita/toolkits/ix$Operator.xml,dita/tk$SampleShellSink/ix$Operator.xml,dita/toolkits/toolkits.xml,dita/tk$SampleShellSink/ix$Namespace.xml,dita/tk$SampleShellSink/spl$sample$TestShellSinkBadScript.xml,dita/tk$SampleShellSink/tk$SampleShellSink.xml
 fullditatopicfile=fullditatopic.list
@@ -37,7 +37,7 @@ codereffile=coderef.list
 keylist=
 codereflist=
 user.input.file.listfile=usr.input.file.list
-user.input.dir=/home/pring/git/streamsx.shell/samples/SampleShellSink/doc/spldoc
+user.input.dir=/home/streamsdev/git/streamsx.shell/samples/SampleShellSink/doc/spldoc
 uplevels=../
 tempdirToinputmapdir.relative.value=dita/
 conrefpushfile=conrefpush.list

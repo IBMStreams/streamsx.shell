@@ -1,4 +1,4 @@
-#Mon May 02 10:11:10 EDT 2016
+#Fri May 06 10:09:00 EDT 2016
 copytosourcelist=
 hreftargetslist=dita/tk$com.ibm.streamsx.shell/ix$Namespace.xml,dita/tk$com.ibm.streamsx.shell/op$com.ibm.streamsx.shell$ShellSource.xml,dita/tk$com.ibm.streamsx.shell/op$com.ibm.streamsx.shell$ShellPipe.xml,dita/tk$com.ibm.streamsx.shell/tk$com.ibm.streamsx.shell.xml,dita/toolkits/ix$Namespace.xml,dita/toolkits/ix$Operator.xml,dita/tk$com.ibm.streamsx.shell/op$com.ibm.streamsx.shell$ShellSink.xml,dita/tk$com.ibm.streamsx.shell/ns$com.ibm.streamsx.shell.xml,dita/toolkits/toolkits.xml,dita/references/OperatorModel.xml,dita/tk$com.ibm.streamsx.shell/ix$Operator.xml
 fullditatopicfile=fullditatopic.list
@@ -37,7 +37,7 @@ codereffile=coderef.list
 keylist=
 codereflist=
 user.input.file.listfile=usr.input.file.list
-user.input.dir=/home/pring/git/streamsx.shell/com.ibm.streamsx.shell/doc/spldoc
+user.input.dir=/home/streamsdev/git/streamsx.shell/com.ibm.streamsx.shell/doc/spldoc
 uplevels=../
 tempdirToinputmapdir.relative.value=dita/
 conrefpushfile=conrefpush.list

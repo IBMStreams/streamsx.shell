@@ -37,7 +37,7 @@
 
       <dd class="dd">
 <ul class="sl simple">
-<li class="sli"><strong class="ph b"><a class="xref" href="spl$sample$TestShellPipeBadScript.html#spldoc_compilationunit__composite_operator__TestShellPipeBadScript">TestShellPipeBadScript</a></strong>
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$sample$TestShellPipeBadScript.html#spldoc_compilationunit__composite_operator__TestShellPipeBadScript">TestShellPipeBadScript</a></strong>: This sample application executes a Perl script containing a syntax error with the ShellPipe operator, and logs the error messages from the Perl interpreter in the Streams application trace.
 </li>
 
 </ul>
@@ -58,6 +58,35 @@
 </div>
 
 <div class="section">
+
+<p class="p">This sample application executes a Perl script containing a syntax error with the ShellPipe operator, and logs the error messages from the Perl interpreter in the Streams application trace.
+</p>
+
+<p class="p">The script can be tested independently of Streams by entering these commands at a Linux prompt:
+</p>
+
+<div class="p">
+<pre class="pre codeblock">
+cd .../samples/SampleShellPipe
+cat ./data/ozymandias.txt | ./etc/badscript.pl
+</pre>
+
+
+</div>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">Parameters</h2>
+
+<ul class="sl simple">
+<li class="sli"><strong class="ph b">inputFile</strong>: specifies an input file containing lines of text that will be written to a script as its STDIN.  The default input file contains a short poem published in 1818 by Percy Bysshe Shelley. 
+</li>
+
+<li class="sli"><strong class="ph b">shellCommand</strong>: specifies the shell command that will be excuted by the ShellPipe operator. The default command is a Perl script that contains a syntax error. 
+</li>
+
+</ul>
+
 </div>
 
 <div class="section">
@@ -84,22 +113,26 @@
 
  composite TestShellPipeBadScript {
  
+     param
+     expression&lt;rstring&gt; $inputFile: dataDirectory() + "/ozymandias.txt";
+     expression&lt;rstring&gt; $shellCommand: "./etc/badscript.pl";
+ 
      graph
  
  
      // create a stream of text lines for the ShellPipe operators below to consume
-     stream&lt;rstring textLine&gt; TextStream = FileSource() {
+     stream&lt;rstring inputLine&gt; InputStream = FileSource() {
      param
-         file: dataDirectory() + "/ozymandias.txt";
+         file: $inputFile;
          format: line; }
-     () as DebugTextStream = FileSink(TextStream) { param file: "debug.TestShellPipeBadScript.TextStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+     () as DebugInputStream = FileSink(InputStream) { param file: "debug.TestShellPipeBadScript.InputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  
  
      // try to execute a Perl script containing a syntax error
      ( stream&lt;rstring stdoutLine&gt; STDOUTStream ;
-       stream&lt;rstring stderrLine&gt; STDERRStream ) = ShellPipe(TextStream) {
+       stream&lt;rstring stderrLine&gt; STDERRStream ) = ShellPipe(InputStream) {
      param
-         command: "./etc/badscript.pl";  }
+         command: $shellCommand;  }
      () as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeBadScript.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
      () as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeBadScript.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  
@@ -107,7 +140,7 @@
      // log STDERR lines to Streams application trace
      () as LogSTDERRStream = Custom(STDERRStream as In) {
      logic onTuple In: {
-           appTrc(Trace.info, "STDERR: " + stderrLine, "TestShellPipeBadScript"); } }
+           appTrc(Trace.info, "STDERR from command '" + $shellCommand + "': " + stderrLine); } }
  
  }
 

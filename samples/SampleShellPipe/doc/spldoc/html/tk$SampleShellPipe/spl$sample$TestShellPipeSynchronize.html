@@ -68,7 +68,7 @@
 <p class="p">The ShellPipe operator normally executes its command asynchronously from Streams,  and the shell buffers the data flowing between them. This is good for performance, because it allows Streams and the command to execute concurrently. But, it allows the operator to consume multiple input tuples  before the script's output from previous tuples is received. That is, input and output tuples may get out of sync, so the operator may copy attributes from later input tuples to earlier output tuples. In this application,  the Gate and Custom operators block the Streams flow while the script processes each input tuple, until a delimiter line is received from the script.
 </p>
 
-<p class="p"><strong class="ph b">Note:</strong> When a Streams application waits for a specific output line from a ShellPipe command, such as the delimiter line in this application, normal shell buffering may cause a deadlock. This can happen when the line the Streams application is waiting for  is written into a partially-filled shell buffer. The shell will not normally send output buffers to Streams until they are full,  and a synchronized Stream application like this one will not send more input to the shell  until it receives the output that's already in the buffer, so the command will not write any more output to the shell,  so the buffer will never fill. To avoid this deadlock, ensure that the command flushes its output buffer after writing the specific output line the application is waiting for. In Bash scripts, output lines from the <tt class="ph tt">echo</tt> command are automatically flushed. In Perl scripts, you can ensure the output lines are automatically flushed like this:
+<p class="p"><strong class="ph b">Note:</strong> When a Streams application waits for a specific output line from a ShellPipe command, such as the delimiter line in this application, normal shell buffering may cause a deadlock. This can happen when the line the Streams application is waiting for  is written into a partially-filled shell buffer. The shell will not normally send output buffers to Streams until they are full,  and a synchronized Stream application like this one will not send more input to the shell  until it receives the output that's already in the buffer, so the command will not write any more output to the shell,  so its buffer will never fill. To avoid this deadlock, ensure that the command flushes its output buffer after writing the specific output line the application is waiting for. In Bash scripts, output lines from the <tt class="ph tt">echo</tt> command are flushed automatically. In Perl scripts, you can ensure the output lines are flushed automatically like this:
 </p>
 
 <div class="p">
@@ -84,7 +84,7 @@ STDOUT-&gt;autoflush(1);
 <p class="p">This sample application illustrates one possible solution to the problem of copying attributes from input tuples to output tuples when Streams and a shell command cannot execute concurrently. The <a class="xref" href="spl$sample$TestShellPipeCopyAttributes_1to1_paired.html#spldoc_compilationunit__composite_operator__TestShellPipeCopyAttributes_1to1_paired">sample::TestShellPipeCopyAttributes_1to1_paired</a>  and <a class="xref" href="spl$sample$TestShellPipeCopyAttributes_1toN_queued.html#spldoc_compilationunit__composite_operator__TestShellPipeCopyAttributes_1toN_queued">sample::TestShellPipeCopyAttributes_1toN_queued</a> applications show other solutions to this problem for scripts that can execute concurrently with Streams.
 </p>
 
-<p class="p">The Perl script used by this sample application can be tested independently on Streams  by entering this command at a Linux prompt:
+<p class="p">The Perl script used by this sample application can be tested independently of Streams  by entering these commands at a Linux prompt:
 </p>
 
 <div class="p">
@@ -128,7 +128,7 @@ cat ./data/ozymandias.txt | ./etc/wordCounterWithAutoflush.pl - -----
 </div>
 
 <div class="section splgraph">
-  <embed class="image" src="../../image/tk$SampleShellPipe/op$sample$TestShellPipeSynchronize.svg" width="572" height="264"/>
+  <embed class="image" src="../../image/tk$SampleShellPipe/op$sample$TestShellPipeSynchronize.svg" width="562" height="243"/>
 </div>
 
 <div class="section"><h2 class="title sectiontitle splhead-2">SPL Source Code</h2>
@@ -182,7 +182,7 @@ cat ./data/ozymandias.txt | ./etc/wordCounterWithAutoflush.pl - -----
      param
          maxUnackedTupleCount: 1;
          numTuplesToAck: ackCount; }
-     () as DebugGatedInputStream = FileSink(GatedInputStream) { param file: "debug.TestShellPipeSynchronize.GatedInputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+     //() as DebugGatedInputStream = FileSink(GatedInputStream) { param file: "debug.TestShellPipeSynchronize.GatedInputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
  
  
      // execute the shell command, writing input attributes to STDIN and reading output attributes from STDOUT
@@ -193,8 +193,8 @@ cat ./data/ozymandias.txt | ./etc/wordCounterWithAutoflush.pl - -----
          stdinAttribute: inputLine;
          stdoutAttribute: "stdoutLine";
          stderrAttribute: "stderrLine"; }
-     () as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeSynchronize.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
-     () as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeSynchronize.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+     //() as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeSynchronize.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+     //() as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeSynchronize.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
          
  
      // parse the output lines, and send the line delimiters to the Gate operator, which will send the next input tuple to the script

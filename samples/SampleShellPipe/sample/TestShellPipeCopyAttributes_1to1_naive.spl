@@ -37,8 +37,8 @@ The [sample::TestShellPipeCopyAttributes_1to1_paired] application shows a soluti
 for scripts that write one output line for each input line, 
 that is, for scripts with a "1 to 1" ratio of input to output lines.
 
-The Perl script used by this sample application can be tested independently on Streams 
-by entering this command at a Linux prompt:
+The Perl script used by this sample application can be tested independently of Streams 
+by entering these commands at a Linux prompt:
 
     cd .../samples/SampleShellPipe
     cat ./data/ozymandias.txt | ./etc/lineCounter.pl - 
@@ -99,7 +99,7 @@ composite TestShellPipeCopyAttributes_1to1_naive {
         stdinAttribute: inputLine;
         stdoutAttribute: "stdoutLine";
         stderrAttribute: "stderrLine"; }
-    () as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_naive.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    //() as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeCopyAttributes_1to1_naive.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
 
     // parse the numbers and text written to STDOUT by the command, and copy other output attributes from the input tuple
