@@ -175,7 +175,10 @@ void MY_OPERATOR::process(uint32_t idx)
             }
         } }
     catch(com::ibm::streamsx::linuxshell::LinuxShellException const & e) {
-        SPLAPPTRC(L_TRACE, "shell terminated, reason='" << shell_.getTermInfoExplanation() << "', exitcode=" << shell_.getTermInfoExitCode(), "ShellPipe");
+        if (getPE().getShutdownRequested())
+            SPLAPPTRC(L_INFO, "shell terminated, reason='" << shell_.getTermInfoExplanation() << "', exitcode=" << shell_.getTermInfoExitCode() << ", commandline '" << commandline << "'", "ShellPipe");
+        else
+            SPLAPPTRC(L_ERROR, "shell terminated, reason='" << shell_.getTermInfoExplanation() << "', exitcode=" << shell_.getTermInfoExitCode() << ", commandline '" << commandline << "'", "ShellPipe");
     }
 
     {

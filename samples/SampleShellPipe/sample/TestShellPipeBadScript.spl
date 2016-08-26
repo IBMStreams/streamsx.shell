@@ -23,12 +23,18 @@ The default input file contains a short poem published in 1818 by Percy Bysshe S
 @param shellCommand specifies the shell command that will be excuted by the ShellPipe operator.
 The default command is a Perl script that contains a syntax error.
 
- */
+@param scriptPath the path to the script file
+
+@param rate the rate of the input tuple stream
+
+*/
 composite TestShellPipeBadScript {
 
     param
     expression<rstring> $inputFile: dataDirectory() + "/ozymandias.txt";
-    expression<rstring> $shellCommand: "./etc/badscript.pl";
+    expression<rstring> $scriptPath: dataDirectory() + "/../etc/"; //consider to use getApplicationDir() / but so it works also in product version 3.x
+    expression<rstring> $shellCommand: getSubmissionTimeValue("shellCommand", "badscript.pl");
+    expression<float64> $rate: (float64)getSubmissionTimeValue("rate", "1000000.0");
 
     graph
 
@@ -38,14 +44,16 @@ composite TestShellPipeBadScript {
     param
         file: $inputFile;
         format: line; }
-    () as DebugInputStream = FileSink(InputStream) { param file: "debug.TestShellPipeBadScript.InputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+    stream<rstring inputLine> InputStreamDelayed = Throttle(InputStream) { param rate : $rate; includePunctuations: true; }
+    () as DebugInputStream = FileSink(InputStreamDelayed) { param file: "debug.TestShellPipeBadScript.InputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
+    
 
     // try to execute a Perl script containing a syntax error
     ( stream<rstring stdoutLine> STDOUTStream ;
-      stream<rstring stderrLine> STDERRStream ) = ShellPipe(InputStream) {
+      stream<rstring stderrLine> STDERRStream ) = ShellPipe(InputStreamDelayed) {
     param
-        command: $shellCommand;  }
+        command: $scriptPath + $shellCommand;  }
     () as DebugSTDOUTStream = FileSink(STDOUTStream) { param file: "debug.TestShellPipeBadScript.STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
     () as DebugSTDERRStream = FileSink(STDERRStream) { param file: "debug.TestShellPipeBadScript.STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
 
@@ -54,5 +62,8 @@ composite TestShellPipeBadScript {
     () as LogSTDERRStream = Custom(STDERRStream as In) {
     logic onTuple In: {
           appTrc(Trace.info, "STDERR from command '" + $shellCommand + "': " + stderrLine); } }
+
+    config
+        restartable : true;
 
 }
