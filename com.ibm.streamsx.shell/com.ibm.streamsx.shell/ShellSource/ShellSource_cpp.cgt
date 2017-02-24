@@ -292,7 +292,12 @@ void MY_OPERATOR::executeShell(std::string command) {
             }
         } }
     catch(com::ibm::streamsx::linuxshell::LinuxShellException const & e) {
-        SPLAPPTRC(L_TRACE, "shell terminated, reason='" << shell_.getTermInfoExplanation() << "', exitcode=" << shell_.getTermInfoExitCode(), "ShellSource");
+        if ( shell_.getTermInfoExitCode() ) {
+            SPLAPPTRC(L_ERROR, "shell terminated, reason='" << shell_.getTermInfoExplanation() << "', exitcode=" << shell_.getTermInfoExitCode(), "ShellSource");
+            SPL::Functions::Utility::abort(__FILE__, __LINE__); //we must activ abort the pe
+        } else {
+            SPLAPPTRC(L_TRACE, "shell terminated, reason='" << shell_.getTermInfoExplanation() << "', exitcode=" << shell_.getTermInfoExitCode(), "ShellSource");
+        }
     }
 
     {
