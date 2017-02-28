@@ -18,7 +18,7 @@ composite TestShellSourceBasic2 {
 
     // execute a shell pipeline that writes selected text lines to STDOUT and STDIN
     ( stream<rstring line> A_STDOUTStream ;
-      stream<rstring line> A_STDERRStream ) = ShellSource() {
+      stream<rstring line> A_STDERRStream ) as LinuxShell = ShellSource() {
     param
         command: "ifconfig -a | gawk '/flags=/ { interface = $1 } ; /inet/ { print interface, $2 }'"; }
     () as DebugA_STDOUTStream = FileSink(A_STDOUTStream) { param file: "debug.TestShellSourceBasic2.A_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
