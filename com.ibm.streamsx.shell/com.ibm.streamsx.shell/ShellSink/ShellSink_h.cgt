@@ -45,10 +45,12 @@ private:
   SPL::rstring commandline;
   SPL::list<SPL::uint64> linecounters;
   SPL::rstring stdinline;
-  SPL::rstring stdoutline;
-  SPL::rstring stderrline;
+  std::string stdoutline;
+  std::string stderrline;
   SPL::uint8 exitcode;
   SPL::rstring exitreason;
+
+  SPL::rstring stderrLine() { return static_cast<SPL::rstring>(stderrline); }
 
 };
 
