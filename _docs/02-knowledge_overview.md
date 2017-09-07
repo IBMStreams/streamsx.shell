@@ -12,4 +12,10 @@ sidebar:
 {% include editme %}
 
 
-Utility toolkit to execute shell commands in a Streams application.
+The Shell toolkit for IBM Streams enables SPL applications to execute Linux shell commands and pipelines as Streams operators:
+
+* lines of text consumed from the operator's input tuples are written to the command's STDIN input
+
+* lines of text read from the command's STDOUT and STDERR output are produced as the operator's output tuples
+
+This version of the toolkit is intended for use with IBM Streams release 4.1 and later.
