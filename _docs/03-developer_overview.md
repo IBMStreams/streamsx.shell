@@ -12,3 +12,15 @@ sidebar:
 {% include editme %}
 
 
+# Build the toolkit
+
+The toolkit needs to be build before you can use it in a SPL application.
+Run the following command in the `streamsx.shell` directory:
+
+    ant all
+
+
+## Running the sample applications test
+
+Call `./autotestAll.sh` in the `sample` directory to perform the regression test.
+
