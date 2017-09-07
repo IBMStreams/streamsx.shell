@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="reference"/>
+<meta name="DC.Title" content="SPL File TestShellPipeBasic2.spl"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="spldoc_compilationunit"/>
+<link rel="stylesheet" type="text/css" href="../../html/commonltr.css"/>
+<link rel="stylesheet" type="text/css" href="../../html/spldoc.css"/>
+<title>SPL File TestShellPipeBasic2.spl</title>
+</head>
+<body id="spldoc_compilationunit">
+
+
+<h1 class="title topictitle1">SPL File <tt class="ph tt">TestShellPipeBasic2.spl</tt></h1>
+
+<div class="body refbody">
+<div class="section">
+<p class="p">
+<a class="xref" href="../toolkits/toolkits.html">Toolkits</a> &gt; <a class="xref" href="tk$SampleShellPipe.html">SampleShellPipe 1.0.0</a> &gt; <a class="xref" href="ns$sample.html">sample</a> &gt; TestShellPipeBasic2.spl</p>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Content</h2>
+  
+  <dl class="dl">
+    <dt class="dt dlterm"/>
+<dd class="dd"/>
+
+    
+      <dt class="dt dlterm splhead-2">Operators</dt>
+
+      <dd class="dd">
+<ul class="sl simple">
+<li class="sli"><strong class="ph b"><a class="xref" href="spl$sample$TestShellPipeBasic2.html#spldoc_compilationunit__composite_operator__TestShellPipeBasic2">TestShellPipeBasic2</a></strong>: This sample application executes a variety of scripts with the ShellPipe operator,  flowing Streams tuple attributes through the scripts, and storing their STDOUT and STDERR in files.
+</li>
+
+</ul>
+
+      </dd>
+
+    
+  </dl>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-1">Composites</h2>
+  
+</div>
+
+<div class="section" id="spldoc_compilationunit__composite_operator__TestShellPipeBasic2"><h2 class="title sectiontitle splpart">public composite TestShellPipeBasic2</h2>
+  
+</div>
+
+<div class="section">
+
+<p class="p">This sample application executes a variety of scripts with the ShellPipe operator,  flowing Streams tuple attributes through the scripts, and storing their STDOUT and STDERR in files.
+</p>
+
+<p class="p">The scripts copy copies lines of text from STDIN to STDOUT and STDERR,  prefixing them with line numbers and the number of characters on each line. The operator writes lines of text consumed from input tuples to STDIN, and produces output tuples containing lines of text read from STDOUT and STDERR.
+</p>
+
+<p class="p">This application illustrates how to execute Bash and Perl scripts, either stored in files or coded directly in the ShellPipe operator specification. This application also illustrates how to specify explicitly which input and output attributes are  used for STDIN and STDOUT and STDERR, respectively, and how the operator chooses attributes when not specified.
+</p>
+
+<p class="p">The scripts can be tested independently of Streams by entering these commands at a Linux prompt:
+</p>
+
+<div class="p">
+<pre class="pre codeblock">
+cd .../samples/SampleShellPipe
+cat ./data/ozymandias.txt | ./etc/lineCounter2.sh
+</pre>
+
+
+</div>
+
+<p class="p">or 
+</p>
+
+<div class="p">
+<pre class="pre codeblock">
+cd .../samples/SampleShellPipe
+cat ./data/ozymandias.txt | ./etc/lineCounter2.pl
+</pre>
+
+
+</div>
+
+</div>
+
+<div class="section"><h2 class="title sectiontitle">Parameters</h2>
+
+<ul class="sl simple">
+<li class="sli"><strong class="ph b">inputFile</strong>: specifies an input file containing lines of text that will be written to a script as its STDIN.  The default input file contains a short poem published in 1818 by Percy Bysshe Shelley. 
+</li>
+
+</ul>
+
+</div>
+
+<div class="section">
+</div>
+
+<div class="section">
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-2">Composite Operator Graph</h2>
+  
+</div>
+
+<div class="section splgraph">
+  <embed class="image" src="../../image/tk$SampleShellPipe/op$sample$TestShellPipeBasic2.svg" width="342" height="480"/>
+</div>
+
+<div class="section"><h2 class="title sectiontitle splhead-2">SPL Source Code</h2>
+  
+</div>
+
+
+<div class="section">
+   <pre class="pre codeblock">
+
+ composite TestShellPipeBasic2 {
+ 
+     param
+     expression&lt;rstring&gt; $inputFile: dataDirectory() + "/ozymandias.txt";
+ 
+     graph
+ 
+ 
+     // create a stream of text lines for the ShellPipe operators below to consume
+     stream&lt;rstring inputLine&gt; InputStream = FileSource() {
+     param
+         file: $inputFile;
+         format: line; }
+     () as DebugInputStream = FileSink(InputStream) { param file: "debug.TestShellPipeBasic2.InputStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+ 
+ 
+     // execute a Bash script from a file that consumes STDIN, counts lines, and produces STDOUT and STDERR
+     ( stream&lt;rstring stdoutLine&gt; A_STDOUTStream ;
+       stream&lt;rstring stderrLine&gt; A_STDERRStream ) = ShellPipe(InputStream) {
+     param
+         command: "./etc/lineCounter2.sh"; }
+     () as DebugA_STDOUTStream = FileSink(A_STDOUTStream) { param file: "debug.TestShellPipeBasic2.A_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+     () as DebugA_STDERRStream = FileSink(A_STDERRStream) { param file: "debug.TestShellPipeBasic2.A_STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+ 
+ 
+     // execute a Bash script from a file that consumes STDIN, counts lines, and produces STDOUT and STDERR
+     ( stream&lt;rstring stdoutLine&gt; B_STDOUTStream ;
+       stream&lt;rstring stderrLine&gt; B_STDERRStream ) = ShellPipe(InputStream) {
+     param
+         command: "./etc/lineCounter2.sh";
+         stdinAttribute: inputLine;
+         stdoutAttribute: "stdoutLine";
+         stderrAttribute: "stderrLine"; }
+     () as DebugB_STDOUTStream = FileSink(B_STDOUTStream) { param file: "debug.TestShellPipeBasic2.B_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+     () as DebugB_STDERRStream = FileSink(B_STDERRStream) { param file: "debug.TestShellPipeBasic2.B_STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+ 
+ 
+     // execute a Perl script from a file that consumes STDIN, counts lines, and produces STDOUT and STDERR
+     ( stream&lt;rstring stdoutLine&gt; C_STDOUTStream ;
+       stream&lt;rstring stderrLine&gt; C_STDERRStream ) = ShellPipe(InputStream) {
+     param
+         command: "./etc/lineCounter2.pl";  }
+     () as DebugC_STDOUTStream = FileSink(C_STDOUTStream) { param file: "debug.TestShellPipeBasic2.C_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+     () as DebugC_STDERRStream = FileSink(C_STDERRStream) { param file: "debug.TestShellPipeBasic2.C_STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+ 
+ 
+     // execute an inline Bash script that consumes STDIN, counts lines, and produces STDOUT and STDERR
+     ( stream&lt;rstring stdoutLine&gt; D_STDOUTStream ;
+       stream&lt;rstring stderrLine&gt; D_STDERRStream ) = ShellPipe(InputStream) {
+     param
+         command: "bash -c \"count=0; while read line ; do (( count += 1 )) ; echo \\$count \\${#line} \\$line &gt;&amp;1 ; echo \\$count \\${#line} \\$line &gt;&amp;2 ; done\"";
+         stdinAttribute: inputLine;
+         stdoutAttribute: "stdoutLine";
+         stderrAttribute: "stderrLine"; }
+     () as DebugD_STDOUTStream = FileSink(D_STDOUTStream) { param file: "debug.TestShellPipeBasic2.D_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+     () as DebugD_STDERRStream = FileSink(D_STDERRStream) { param file: "debug.TestShellPipeBasic2.D_STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+ 
+ 
+     // execute an inline Perl script that consumes STDIN, counts lines, and produces STDOUT and STDERR
+     ( stream&lt;rstring stdoutLine&gt; E_STDOUTStream ;
+       stream&lt;rstring stderrLine&gt; E_STDERRStream ) = ShellPipe(InputStream) {
+     param
+         command: "perl -n -e \"print STDOUT ++\\$count . ' ' . length . ' ' . \\$_; print STDERR \\$count . ' ' . length . ' ' . \\$_\"; ";
+         stdinAttribute: inputLine;
+         stdoutAttribute: "stdoutLine";
+         stderrAttribute: "stderrLine"; }
+     () as DebugE_STDOUTStream = FileSink(E_STDOUTStream) { param file: "debug.TestShellPipeBasic2.E_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+     () as DebugE_STDERRStream = FileSink(E_STDERRStream) { param file: "debug.TestShellPipeBasic2.E_STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+ 
+ 
+     // execute an inline Perl script that consumes STDIN, copies lines, and produces STDOUT and STDERR
+     ( stream&lt;rstring stdoutLine&gt; F_STDOUTStream as Out1 ;
+       stream&lt;rstring stderrLine&gt; F_STDERRStream as Out2 ) = ShellPipe(InputStream) {
+     param
+         command: "perl -n -e \"print STDOUT \\$_; print STDERR \\$_\"; ";
+     output
+     Out1:
+         stdoutLine = (rstring)lineCounters()[1] + " " + (rstring)length(stdoutLine()) + " " + stdoutLine();
+     Out2:
+         stderrLine = (rstring)lineCounters()[2] + " " + (rstring)length(stderrLine()) + " " + stderrLine(); }
+     () as DebugF_STDOUTStream = FileSink(F_STDOUTStream) { param file: "debug.TestShellPipeBasic2.F_STDOUTStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+     () as DebugF_STDERRStream = FileSink(F_STDERRStream) { param file: "debug.TestShellPipeBasic2.F_STDERRStream.out"; format: txt; hasDelayField: true; flush: 1u; writePunctuations: true; }
+ 
+ }
+
+   </pre>
+
+</div>
+
+</div>
+
+
+</body>
+</html>
