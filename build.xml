@@ -14,8 +14,9 @@
 	<property name="toolkit" location="com.ibm.streamsx.shell" />
 	<property name="tkname" value="com.ibm.streamsx.shell" />
 	<property name="tmp" location="tmp" />
+	<property name="release.dir" location="release"/>
 
-	<target name="all" depends="toolkit, samples" />
+	<target name="all" depends="toolkit, samples" description="Build the code and the samples index"/>
 
 	<target name="setcommitversion">
 		<!-- Create the time stamp -->
@@ -48,7 +49,7 @@
 		</exec>
 	</target>
 
-	<target name="clean" description="clean up">
+	<target name="clean" depends="cleansamples" description="Clean up code and samples index">
 		<ant dir="${toolkit}" target="clean" />
 	</target>
 
@@ -60,16 +61,10 @@
 		<ant dir="${toolkit}" target="indexToolkit" />
 	</target>
 
-	<target name="spldoc" depends="spldoc_work, revertversion" />
+	<target name="spldoc" depends="spldoc_work, revertversion" description="Buld the toolkit documentation"/>
 
 	<target name="spldoc_work" depends="setcommitversion, samples">
-		<antcall target="spldoctoolkit">
-			<param name="tkdir" value="${toolkit}" />
-			<param name="tktitle" value="IBMStreams ${tkinfo.info:identity.info:name} Toolkit" />
-		</antcall>
-		<subant target="spldoctoolkit" genericantfile="${basedir}/build.xml">
-			<dirset dir="samples" includes="*" />
-		</subant>
+		<exec command="${basedir}/generate-doc-here.sh" failonerror="true"/>
 	</target>
 
 	<target name="samples" depends="toolkit">
@@ -102,64 +97,38 @@
 		</exec>
 	</target>
 
-	<target name="clean_spldoc">
+	<target name="clean_spldoc" description="Clean up the toolkit documentation">
 		<echo message="Removing SPLDOC directories" />
-		<delete dir="${basedir}/${toolkit}/doc"/>
-		<delete verbose="true">
-			<dirset dir="samples" includes="**/doc/**" />
+		<delete dir="doc/"/>
+		<delete dir="${toolkit}/doc/"/>
+		<delete verbose="true" includeemptydirs="true">
+			<fileset dir="samples" includes="*/doc/**" />
 		</delete>
 	</target>
 
-	<target name="spldoctoolkit">
-		<property name="tkdir" value="${basedir}" />
-		<echo message="Tookit to SPLDOC: ${tkdir}" />
-		<exec executable="${streams.install}/bin/spl-make-doc">
-			<arg value="--include-composite-operator-diagram" />
-			<arg value="--author" />
-			<arg value="IBMStreams Open Source Community at GitHub - https://github.com/IBMStreams/${ant.project.name}" />
-			<arg value="--doc-title" />
-			<arg value="${tktitle}" />
-			<arg value="--directory" />
-			<arg value="${tkdir}" />
-		</exec>
-	</target>
-
 	<!-- Targets to build releases -->
-	<target name="release" depends="clean, cleansamples, all, spldoc, setcommitversion">
-		<delete dir="${tmp}" />		
-		<mkdir dir="${tmp}" />
-		<property name="releasefilename" value="${tmp}/com.ibm.streamsx.shell-${tkinfo.info:identity.info:version}-${DSTAMP}-${TSTAMP}.tgz" />
-		<property name="samplesfilename" value="${tmp}/com.ibm.streamsx.shell-${tkinfo.info:identity.info:version}-${DSTAMP}-${TSTAMP}-samples.tgz" />
-		<tar compression="gzip" longfile="gnu" destfile="${releasefilename}">
-			<tarfileset dir="${tkname}/.." filemode="775">
-				<include name="${tkname}/impl/bin/*.pl" />
-			</tarfileset>
-			<tarfileset dir="${tkname}/.." filemode="664">
-				<include name="${tkname}/impl/bin/*.pm" />
-			</tarfileset>
-			<tarfileset dir="${tkname}/.." >
-				<include name="${tkname}/**" />
-				<exclude name="${tkname}/impl/bin/*.pl" />
-				<exclude name="${tkname}/impl/bin/*.pm" />
-				<exclude name="${tkname}/.gitignore" />
-				<exclude name="${tkname}/.settings/**" />
-				<exclude name="${tkname}/.settings" />
-				<exclude name="${tkname}/.project" />
-				<exclude name="${tkname}/.classpath" />
-			</tarfileset>
-		</tar>
+	<target name="release" depends="setcommitversion">
+		<antcall target="clean" inheritall="True"/>
+		<antcall target="all" inheritall="True"/>
+		<antcall target="spldoc" inheritall="True"/>
+		<mkdir dir="${release.dir}"/>
+		<!-- Extract the git commit hash -->
+		<exec executable="git" outputproperty="commithash.short">
+			<arg value="rev-parse" />
+			<arg value="--short" />
+			<arg value="HEAD" />
+		</exec>
+		<property name="releasefilename" value="${release.dir}/com.ibm.streamsx.shell-${tkinfo.info:identity.info:version}-${commithash.short}-${DSTAMP}-${TSTAMP}.tgz" />
+		<echo>Generate release archive ${releasefilename}</echo>
+		<property name="exludestring" value="**/.toolkitList **/.gitignore **/.apt_generated .project ${tkname}/impl/obj/ ${tkname}/impl/Makefile ${tkname}/.project ${tkname}/.classpath ${tkname}/.cproject ${tkname}/.settings/** ${tkname}/build.xml build.xml"/>
+		<tar compression="gzip" longfile="gnu"
+			destfile="${releasefilename}"
+			basedir="${basedir}"
+			excludes="${exludestring}"
+			includes="${tkname}/ samples/ doc/"
+		/>
 		<checksum file="${releasefilename}" />
 		<checksum algorithm="sha1" file="${releasefilename}" />
-
-		<tar compression="gzip" longfile="gnu" destfile="${samplesfilename}">
-	        <tarfileset dir="samples/.." filemode="755">
-    	     	<include name="samples/autotestAll.sh" />
-            </tarfileset>
-            <tarfileset dir="samples/..">
-                <include name="samples/**" />
-                <exclude name="samples/autotestAll.sh" />
-            </tarfileset> 
-		</tar>
 	</target>
 
 	<target name="release-src" depends="clean, cleansamples">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 // *******************************************************************************
-// * Copyright (C)2015, International Business Machines Corporation and *
+// * Copyright (C)2019, International Business Machines Corporation and *
 // * others. All Rights Reserved. *
 // *******************************************************************************
 -->
@@ -10,14 +10,9 @@
 	<property environment="env" />
 	<property name="streams.install" value="${env.STREAMS_INSTALL}" />
 
-	<property name="java.src.dir" value="impl/java/src" />
 	<property name="spl-mt" value="${streams.install}/bin/spl-make-toolkit" />
 
-	<target name="all" depends="init, indexToolkit"/>
-	
-	<target name="init">
-		<mkdir dir="${java.src.dir}" />
-	</target>
+	<target name="all" depends="indexToolkit"/>
 
 	<target name="clean">
 		<!-- toolkit clean -->
@@ -25,14 +20,14 @@
 			<arg value="-c"/>
 			<arg value="-i"/>
 			<arg value="."/>
-    	</exec>
+		</exec>
 	</target>
-	
+
 	<target name="indexToolkit">
 		<exec executable="${spl-mt}" failonerror="true">
 			<arg value="-i"/>
 			<arg value="."/>
-	    </exec>
+		</exec>
 	</target>
 
 </project>
