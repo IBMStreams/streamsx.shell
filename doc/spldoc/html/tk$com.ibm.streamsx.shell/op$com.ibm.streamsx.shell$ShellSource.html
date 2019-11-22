@@ -22,12 +22,12 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">Toolkits</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.shell.html">com.ibm.streamsx.shell 2.0.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.shell.html">com.ibm.streamsx.shell</a> &gt; ShellSource</p>
+<a class="xref" href="../toolkits/toolkits.html">Toolkits</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.shell.html">com.ibm.streamsx.shell 2.0.2</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.shell.html">com.ibm.streamsx.shell</a> &gt; ShellSource</p>
 
 </div>
 
 <div class="section splprimop">
-  <embed class="image" src="../../image/tk$com.ibm.streamsx.shell/op$com.ibm.streamsx.shell$ShellSource.svg" width="672" height="128"/>
+  <embed class="image" src="../../image/tk$com.ibm.streamsx.shell/op$com.ibm.streamsx.shell$ShellSource.svg" width="872" height="128"/>
 </div>
 
 <div class="section">
@@ -98,7 +98,7 @@
 
   <dd class="dd">This operator supports 7 parameters.
 <p class="p"> Optional: 
-<a class="xref" href="#spldoc_operator__parameter__initDelay">initDelay</a>, <a class="xref" href="#spldoc_operator__parameter__iterationCount">iterationCount</a>, <a class="xref" href="#spldoc_operator__parameter__iterationInterval">iterationInterval</a>, <a class="xref" href="#spldoc_operator__parameter__command">command</a>, <a class="xref" href="#spldoc_operator__parameter__commandAttribute">commandAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__stdoutAttribute">stdoutAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__stderrAttribute">stderrAttribute</a>
+<a class="xref" href="#spldoc_operator__parameter__command">command</a>, <a class="xref" href="#spldoc_operator__parameter__commandAttribute">commandAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__initDelay">initDelay</a>, <a class="xref" href="#spldoc_operator__parameter__iterationCount">iterationCount</a>, <a class="xref" href="#spldoc_operator__parameter__iterationInterval">iterationInterval</a>, <a class="xref" href="#spldoc_operator__parameter__stderrAttribute">stderrAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__stdoutAttribute">stdoutAttribute</a>
 
 </p>
 </dd>
@@ -539,7 +539,88 @@
 <div class="section">
 <p class="p splhead-1"><strong class="ph b"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters">Parameters</a></strong></p>
 
+
+<p class="p"> Optional: 
+<a class="xref" href="#spldoc_operator__parameter__command">command</a>, <a class="xref" href="#spldoc_operator__parameter__commandAttribute">commandAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__initDelay">initDelay</a>, <a class="xref" href="#spldoc_operator__parameter__iterationCount">iterationCount</a>, <a class="xref" href="#spldoc_operator__parameter__iterationInterval">iterationInterval</a>, <a class="xref" href="#spldoc_operator__parameter__stderrAttribute">stderrAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__stdoutAttribute">stdoutAttribute</a>
+
+</p>
 <dl class="dl">
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__command"><!-- --></a><tt class="ph tt">command</tt></dt>
+
+     <dd class="dd">
+<p class="p">This optional parameter takes an expression of type <tt class="ph tt">rstring</tt> that specifies the shell command  or pipeline to be executed by the operator. 
+</p>
+
+<p class="p">If this parameter is specified, the <tt class="ph tt">commandAttribute</tt> parameter may not be specified.  If neither parameter is specified, and an input port is configured,  shell commands are consumed from the first input attribute of type <tt class="ph tt">rstring</tt>.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__commandAttribute"><!-- --></a><tt class="ph tt">commandAttribute</tt></dt>
+
+     <dd class="dd">
+<p class="p">When an input port is configured,  this optional parameter specifies an input attribute of type <tt class="ph tt">rstring</tt> that contains the shell commands or pipelines to be executed by the operator. 
+</p>
+
+<p class="p">If this parameter is specified, the <tt class="ph tt">command</tt> parameter may not be specified.  If neither parameter is specified,  shell commands are consumed from the first input attribute of type <tt class="ph tt">rstring</tt>.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Attribute
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
   
      <dt class="dt dlterm"><a name="spldoc_operator__parameter__initDelay"><!-- --></a><tt class="ph tt">initDelay</tt></dt>
 
@@ -658,89 +739,13 @@
 
   
   
-     <dt class="dt dlterm"><a name="spldoc_operator__parameter__command"><!-- --></a><tt class="ph tt">command</tt></dt>
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__stderrAttribute"><!-- --></a><tt class="ph tt">stderrAttribute</tt></dt>
 
      <dd class="dd">
-<p class="p">This optional parameter takes an expression of type <tt class="ph tt">rstring</tt> that specifies the shell command  or pipeline to be executed by the operator. 
+<p class="p">This optional parameter specifies the name of an output attribute of type <tt class="ph tt">rstring</tt> for output port 1,  if there is one.  Lines of text written to STDERR by the shell command will be assigned to this attribute.
 </p>
 
-<p class="p">If this parameter is specified, the <tt class="ph tt">commandAttribute</tt> parameter may not be specified.  If neither parameter is specified, and an input port is configured,  shell commands are consumed from the first input attribute of type <tt class="ph tt">rstring</tt>.
-</p>
-
-  <dl class="dl">
-    
-     <dt class="dt dlterm">Properties</dt>
-
-     <dd class="dd">   <ul class="sl simple">
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
-     </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
-     </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
-     </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
-     </li>
-
-   </ul>
-
-     <p class="p"/>
-     </dd>
-
-    
-  </dl>
-
-     </dd>
-
-  
-  
-     <dt class="dt dlterm"><a name="spldoc_operator__parameter__commandAttribute"><!-- --></a><tt class="ph tt">commandAttribute</tt></dt>
-
-     <dd class="dd">
-<p class="p">When an input port is configured,  this optional parameter specifies an input attribute of type <tt class="ph tt">rstring</tt> that contains the shell commands or pipelines to be executed by the operator. 
-</p>
-
-<p class="p">If this parameter is specified, the <tt class="ph tt">command</tt> parameter may not be specified.  If neither parameter is specified,  shell commands are consumed from the first input attribute of type <tt class="ph tt">rstring</tt>.
-</p>
-
-  <dl class="dl">
-    
-     <dt class="dt dlterm">Properties</dt>
-
-     <dd class="dd">   <ul class="sl simple">
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: rstring
-     </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
-     </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
-     </li>
-
-     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: Attribute
-     </li>
-
-   </ul>
-
-     <p class="p"/>
-     </dd>
-
-    
-  </dl>
-
-     </dd>
-
-  
-  
-     <dt class="dt dlterm"><a name="spldoc_operator__parameter__stdoutAttribute"><!-- --></a><tt class="ph tt">stdoutAttribute</tt></dt>
-
-     <dd class="dd">
-<p class="p">This optional parameter specifies the name of an output attribute of type <tt class="ph tt">rstring</tt> for output port 0.  Lines of text written to STDOUT by the shell command will be assigned to this attribute in output tuples.
-</p>
-
-<p class="p">If this parameter is not specified,  the first output attribute of type <tt class="ph tt">rstring</tt> for output port 0 will be used.
+<p class="p">If this parameter is not specified, the first output attribute of type <tt class="ph tt">rstring</tt> for output port 1 will be used.
 </p>
 
   <dl class="dl">
@@ -772,13 +777,13 @@
 
   
   
-     <dt class="dt dlterm"><a name="spldoc_operator__parameter__stderrAttribute"><!-- --></a><tt class="ph tt">stderrAttribute</tt></dt>
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__stdoutAttribute"><!-- --></a><tt class="ph tt">stdoutAttribute</tt></dt>
 
      <dd class="dd">
-<p class="p">This optional parameter specifies the name of an output attribute of type <tt class="ph tt">rstring</tt> for output port 1,  if there is one.  Lines of text written to STDERR by the shell command will be assigned to this attribute.
+<p class="p">This optional parameter specifies the name of an output attribute of type <tt class="ph tt">rstring</tt> for output port 0.  Lines of text written to STDOUT by the shell command will be assigned to this attribute in output tuples.
 </p>
 
-<p class="p">If this parameter is not specified, the first output attribute of type <tt class="ph tt">rstring</tt> for output port 1 will be used.
+<p class="p">If this parameter is not specified,  the first output attribute of type <tt class="ph tt">rstring</tt> for output port 0 will be used.
 </p>
 
   <dl class="dl">
