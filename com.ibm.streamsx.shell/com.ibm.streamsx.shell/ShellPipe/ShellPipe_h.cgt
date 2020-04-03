@@ -35,6 +35,9 @@ private:
   SPL::Mutex mutex_;
   com::ibm::streamsx::linuxshell::LinuxShell shell_;
 
+  // ----------- operator parameters (constant after constructor executes) ----------
+  bool abortOnError_;
+
   // ----------- operator input and output tuples ----------
 
   IPort0Type inputTuple;

@@ -85,6 +85,14 @@ MY_OPERATOR::MY_OPERATOR()
     linecounters.resize(3);
     for (int i=0; i<linecounters.size(); i++) linecounters[i] = 0;
 
+    abortOnError_ = false;
+    //check parameter abortOnError
+    if (getParameterNames().count("abortOnError")) {
+        const ParameterValueListType& values = getParameterValues("abortOnError");
+        const SPL::boolean abortOnError = values[0]->getValue();
+        abortOnError_ = abortOnError;
+    }
+
     // clear tuples
     inputTuple.clear();
     outputTuple0.clear();
@@ -179,7 +187,9 @@ void MY_OPERATOR::process(uint32_t idx)
             SPLAPPTRC(L_INFO, "shell terminated, reason='" << shell_.getTermInfoExplanation() << "', exitcode=" << shell_.getTermInfoExitCode() << ", commandline '" << commandline << "'", "ShellPipe");
         else {
             SPLAPPTRC(L_ERROR, "shell terminated, reason='" << shell_.getTermInfoExplanation() << "', exitcode=" << shell_.getTermInfoExitCode() << ", commandline '" << commandline << "'", "ShellPipe");
-            SPL::Functions::Utility::abort(__FILE__, __LINE__); //we must activ abort the pe
+            if (abortOnError_) {
+                SPL::Functions::Utility::abort(__FILE__, __LINE__); //we must activ abort the pe
+            }
         }
     }
 
