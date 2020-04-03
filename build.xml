@@ -15,8 +15,13 @@
 	<property name="tkname" value="com.ibm.streamsx.shell" />
 	<property name="tmp" location="tmp" />
 	<property name="release.dir" location="release"/>
+	<property name="samples.dir" location="samples"/>
 
 	<target name="all" depends="toolkit, samples" description="Build the code and the samples index"/>
+
+	<target name="test" depends="all">
+		<exec command="${samples.dir}/autotestAll.sh" failonerror="true"/>
+	</target>
 
 	<target name="setcommitversion">
 		<!-- Create the time stamp -->
@@ -77,6 +82,21 @@
 		<subant target="cleantoolkit" genericantfile="${basedir}/build.xml">
 			<dirset dir="samples" includes="*" />
 		</subant>
+		<delete dir="samples/SampleShellPipe/output"/>
+		<delete dir="samples/SampleShellPipe/log"/>
+		<delete>
+			<fileset dir="samples/SampleShellPipe/data" includes="*.out"/>
+		</delete>
+		<delete dir="samples/SampleShellSource/output"/>
+		<delete dir="samples/SampleShellSource/log"/>
+		<delete>
+			<fileset dir="samples/SampleShellSource/data" includes="*.out"/>
+		</delete>
+		<delete dir="samples/SampleShellSink/output"/>
+		<delete dir="samples/SampleShellSink/log"/>
+		<delete>
+			<fileset dir="samples/SampleShellSink/data" includes="*.out"/>
+		</delete>
 	</target>
 
 	<!-- Targets called on samples -->
