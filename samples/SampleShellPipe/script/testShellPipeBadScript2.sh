@@ -9,7 +9,7 @@
 #set -o pipefail
 
 namespace=sample
-composite=TestShellSourceBasic3
+composite=TestShellPipeBadScript2
 
 here=$( cd ${0%/*} ; pwd )
 projectDirectory=$( cd $here/.. ; pwd )
@@ -71,7 +71,8 @@ sc ${compilerOptionsList[*]} -- ${compileTimeParameterList[*]} || die "Sorry, co
 
 step "executing standalone application '$namespace.$composite' ..."
 executable=$buildDirectory/bin/$namespace.$composite
-$executable -t $traceLevel ${submitParameterList[*]} || die "sorry, application '$composite' failed, $?"
+$executable -t $traceLevel ${submitParameterList[*]}
+[ $? -ne 0 ] || die "sorry, application '$composite' failed, $?"
 
 exit 0
 

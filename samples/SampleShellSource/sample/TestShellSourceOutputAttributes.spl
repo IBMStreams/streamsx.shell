@@ -74,6 +74,7 @@ composite TestShellSourceOutputAttributes {
         commandAttribute: command;
         stdoutAttribute: "outputLine";
         stderrAttribute: "errorLine";
+        abortOnError: true;
     output 
     OutputStream:
         outputLineNumber = ++lineCounter,
