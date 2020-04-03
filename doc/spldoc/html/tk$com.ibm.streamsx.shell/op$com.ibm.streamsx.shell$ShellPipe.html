@@ -22,7 +22,7 @@
 <div class="body refbody">
 <div class="section">
 <p class="p">
-<a class="xref" href="../toolkits/toolkits.html">Toolkits</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.shell.html">com.ibm.streamsx.shell 2.0.2</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.shell.html">com.ibm.streamsx.shell</a> &gt; ShellPipe</p>
+<a class="xref" href="../toolkits/toolkits.html">Toolkits</a> &gt; <a class="xref" href="tk$com.ibm.streamsx.shell.html">com.ibm.streamsx.shell 2.1.0</a> &gt; <a class="xref" href="ns$com.ibm.streamsx.shell.html">com.ibm.streamsx.shell</a> &gt; ShellPipe</p>
 
 </div>
 
@@ -96,14 +96,14 @@
  
   <dt class="dt dlterm">Parameters</dt>
 
-  <dd class="dd">This operator supports 4 parameters.
+  <dd class="dd">This operator supports 5 parameters.
 <p class="p"> Required: 
 <a class="xref" href="#spldoc_operator__parameter__command">command</a>
 
 </p>
 
 <p class="p"> Optional: 
-<a class="xref" href="#spldoc_operator__parameter__stderrAttribute">stderrAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__stdinAttribute">stdinAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__stdoutAttribute">stdoutAttribute</a>
+<a class="xref" href="#spldoc_operator__parameter__abortOnError">abortOnError</a>, <a class="xref" href="#spldoc_operator__parameter__stderrAttribute">stderrAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__stdinAttribute">stdinAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__stdoutAttribute">stdoutAttribute</a>
 
 </p>
 </dd>
@@ -462,10 +462,45 @@
 </p>
 
 <p class="p"> Optional: 
-<a class="xref" href="#spldoc_operator__parameter__stderrAttribute">stderrAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__stdinAttribute">stdinAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__stdoutAttribute">stdoutAttribute</a>
+<a class="xref" href="#spldoc_operator__parameter__abortOnError">abortOnError</a>, <a class="xref" href="#spldoc_operator__parameter__stderrAttribute">stderrAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__stdinAttribute">stdinAttribute</a>, <a class="xref" href="#spldoc_operator__parameter__stdoutAttribute">stdoutAttribute</a>
 
 </p>
 <dl class="dl">
+  
+     <dt class="dt dlterm"><a name="spldoc_operator__parameter__abortOnError"><!-- --></a><tt class="ph tt">abortOnError</tt></dt>
+
+     <dd class="dd">
+<p class="p">Specifies whether to perform an abort if shell exits with non-zero exit code. The default value is <tt class="ph tt">false</tt>.
+</p>
+
+  <dl class="dl">
+    
+     <dt class="dt dlterm">Properties</dt>
+
+     <dd class="dd">   <ul class="sl simple">
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__type">Type</a>: boolean
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__cardinality">Cardinality</a>: 1
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__optional">Optional</a>: true
+     </li>
+
+     <li class="sli"><a class="xref" href="../references/OperatorModel.html#spldoc_reference_operator_model__parameters__parameter__expressionmode">ExpressionMode</a>: AttributeFree
+     </li>
+
+   </ul>
+
+     <p class="p"/>
+     </dd>
+
+    
+  </dl>
+
+     </dd>
+
+  
   
      <dt class="dt dlterm"><a name="spldoc_operator__parameter__command"><!-- --></a><tt class="ph tt">command</tt></dt>
 

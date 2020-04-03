@@ -78,11 +78,13 @@
       ><set attributeName="visibility" from="hidden" end="sdt0.mouseout" to="visible" begin="sdt0.mouseover"
     /></g
     ><g visibility="hidden" style="stroke:none;font-style:italic;font-size:12px;font-family:&apos;Helvetica&apos;,&apos;SansSerif&apos;;"
-    ><rect x="47.65" y="91.0" width="413.27997" style="fill:rgb(230,230,255);stroke:rgb(0,0,80);" rx="2.0" ry="2.0" height="32.0"
-      /><text x="48.65" y="104.0"
+    ><rect x="47.65" y="76.0" width="421.75998" style="fill:rgb(230,230,255);stroke:rgb(0,0,80);" rx="2.0" ry="2.0" height="47.0"
+      /><text x="48.65" y="89.0"
       >Optional: initDelay, iterationCount, iterationInterval, </text
+      ><text x="48.65" y="104.0"
+      >command, commandAttribute, stdoutAttribute, stderrAttribute, </text
       ><text x="48.65" y="119.0"
-      >command, commandAttribute, stdoutAttribute, stderrAttribute</text
+      >abortOnError</text
       ><set attributeName="visibility" from="hidden" end="sdt1.mouseout" to="visible" begin="sdt1.mouseover"
     /></g
     ><g visibility="hidden" style="stroke:none;font-style:italic;font-size:12px;font-family:&apos;Helvetica&apos;,&apos;SansSerif&apos;;"

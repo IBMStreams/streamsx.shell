@@ -71,7 +71,7 @@
       /><text x="48.65" y="88.0"
       >Required: command / Optional: stdinAttribute, </text
       ><text x="48.65" y="103.0"
-      >stdoutAttribute, stderrAttribute</text
+      >stdoutAttribute, stderrAttribute, abortOnError</text
       ><set attributeName="visibility" from="hidden" end="sdt1.mouseout" to="visible" begin="sdt1.mouseover"
     /></g
     ><g visibility="hidden" style="stroke:none;font-style:italic;font-size:12px;font-family:&apos;Helvetica&apos;,&apos;SansSerif&apos;;"
