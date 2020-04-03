@@ -37,6 +37,7 @@ private:
   double initDelay;
   uint32_t iterationCount;
   double iterationInterval;
+  bool abortOnError_;
 
   // ----------- operator state variables ----------
 

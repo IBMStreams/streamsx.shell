@@ -316,6 +316,15 @@ If this parameter is not specified, the first output attribute of type `rstring`
         <type>rstring</type>
         <cardinality>1</cardinality>
       </parameter>
+      <parameter>
+        <name>abortOnError</name>
+        <description>Specifies whether to perform an abort if shell exits with non-zero exit code. The default value is `false`.</description>
+        <optional>true</optional>
+        <rewriteAllowed>true</rewriteAllowed>
+        <expressionMode>AttributeFree</expressionMode>
+        <type>boolean</type>
+        <cardinality>1</cardinality>
+      </parameter> 
     </parameters>
     <inputPorts>
       <inputPortSet>

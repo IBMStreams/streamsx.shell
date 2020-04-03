@@ -105,6 +105,14 @@ MY_OPERATOR::MY_OPERATOR()
     iterationInterval = <%=$iterationInterval%>;
     commandline = <%=$command%>;
 
+    abortOnError_ = false;
+    //check parameter abortOnError
+    if (getParameterNames().count("abortOnError")) {
+        const ParameterValueListType& values = getParameterValues("abortOnError");
+        const SPL::boolean abortOnError = values[0]->getValue();
+        abortOnError_ = abortOnError;
+    }
+
     // initialize operator state variables
     drained_ = false;
     linecounters.resize(3);
@@ -294,7 +302,9 @@ void MY_OPERATOR::executeShell(std::string command) {
     catch(com::ibm::streamsx::linuxshell::LinuxShellException const & e) {
         if ( shell_.getTermInfoExitCode() ) {
             SPLAPPTRC(L_ERROR, "shell terminated, reason='" << shell_.getTermInfoExplanation() << "', exitcode=" << shell_.getTermInfoExitCode(), "ShellSource");
-            SPL::Functions::Utility::abort(__FILE__, __LINE__); //we must activ abort the pe
+            if (abortOnError_) {
+                SPL::Functions::Utility::abort(__FILE__, __LINE__); //we must activ abort the pe
+            }
         } else {
             SPLAPPTRC(L_TRACE, "shell terminated, reason='" << shell_.getTermInfoExplanation() << "', exitcode=" << shell_.getTermInfoExitCode(), "ShellSource");
         }
